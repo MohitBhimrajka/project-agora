@@ -1,4 +1,4 @@
-# Adk_copilot
+# ADK Copilot
 
 An intelligent AI copilot and expert assistant for developers using the Google Agent Development Kit (ADK). Built with a sophisticated multi-agent architecture, Adk_copilot helps developers solve problems, generate code, and navigate the complexities of building applications with the Google ADK.
 
