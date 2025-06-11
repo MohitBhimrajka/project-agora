@@ -1,5 +1,3 @@
-# FILE: intelligent_support_triage/tools/support_tools.py
-
 import os
 import json
 from google.adk.tools import ToolContext
@@ -18,14 +16,13 @@ def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
     if not all([project_id, dataset_id]):
         return "Configuration Error: BQ_PROJECT_ID or BQ_DATASET_ID is not set."
 
-    # Use parameterized queries to prevent SQL injection
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
             bigquery.ScalarQueryParameter("query_term", "STRING", f"%{query}%")
         ]
     )
     
-    # FINAL FIX: Use a table alias `t` to prevent ambiguity.
+    # FINAL FIX: Use a table alias `t` to prevent "Unrecognized name" error.
     sql_query = f"""
         SELECT
             t.request,
@@ -55,8 +52,8 @@ def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
 
 def create_ticket(request: str, tool_context: ToolContext) -> str:
     """
-    Creates a new support ticket object from the user's initial request
-    and saves it to the session state. This should be the first step for any new support issue.
+    Creates a new support ticket object from the user's initial request.
+    This should be the first step for any new support issue.
     """
     print(f"INFO: Creating a new ticket for request: '{request}'")
     ticket = SupportTicket(
