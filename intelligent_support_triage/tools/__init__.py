@@ -1,1 +1,1 @@
-from .support_tools import create_ticket, find_relevant_information
+from .support_tools import create_ticket, search_resolved_tickets_db

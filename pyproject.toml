@@ -15,6 +15,7 @@ python-dotenv = "^1.0.1"
 sqlglot = "^26.10.1"
 db-dtypes = "^1.4.2"
 requests = "^2.31.0" # For future CRM/API tool integration
+llama-index = "^0.12"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
