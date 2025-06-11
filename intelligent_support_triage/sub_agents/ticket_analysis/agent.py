@@ -11,12 +11,11 @@ ticket_analysis_agent = Agent(
         Your task is to read a developer's request and return a structured JSON object.
 
         The JSON object must conform to the following schema:
-        - "urgency": "High" if it's a blocking error, "Medium" for how-to questions, "Low" for conceptual questions.
-        - "category": (string) Choose the best category: "Deployment", "Tool Definition", "State Management", "Evaluation", "RAG & Data", "Core Concepts", "Code Generation Request", "General Inquiry".
-        - "sentiment": What is the developer's emotional tone? (e.g., "Frustrated", "Curious", "Confused")
-        - "summary": (string) Provide a concise, one-sentence summary of the developer's core issue.
+        - \"urgency\": \"High\" if it's a blocking error, \"Medium\" for how-to questions, \"Low\" for conceptual questions.
+        - \"category\": (string) Choose ONLY from this list: [\"Deployment\", \"Tool Definition\", \"State Management\", \"Evaluation\", \"RAG & Data\", \"Core Concepts\", \"Code Generation\", \"General Inquiry\"]. If the user asks \"how to write/create/build\" something, the category MUST be \"Code Generation\".
+        - \"sentiment\": What is the developer's emotional tone? (e.g., \"Frustrated\", \"Curious\", \"Confused\")
+        - \"summary\": (string) Provide a concise, one-sentence summary of the developer's core issue.
 
         Analyze the request and provide ONLY the raw JSON object.
     """,
-    output_key="ticket_analysis"
 )

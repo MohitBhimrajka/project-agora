@@ -62,7 +62,7 @@ def setup():
     gcs_uri = f"gs://{bucket_name}/{gcs_destination_prefix}"
 
     # 2. Create RAG Corpus
-    corpus_display_name = "triage_system_knowledge_base"
+    corpus_display_name = "adk_knowledge_base"
     print(f"Creating RAG Corpus '{corpus_display_name}'...")
     try:
         corpus = rag.create_corpus(display_name=corpus_display_name)

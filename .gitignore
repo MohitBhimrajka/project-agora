@@ -127,3 +127,4 @@ cython_debug/
 
 *.lock
 *.md
+*.txt
