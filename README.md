@@ -118,17 +118,96 @@ Navigate to `http://localhost:8000` in your browser and select the `adk_copilot`
 
 ## Project Structure
 
-A brief overview of the key directories:
+A comprehensive overview of the repository structure:
 
--   `adk_copilot/`: Contains the core source code for the agent.
-    -   `agent.py`: Defines the main orchestrator agent.
-    -   `prompts.py`: Holds the instructional prompts for the agents.
-    -   `entities/`: Pydantic models for data structures like `SupportTicket`.
-    -   `sub_agents/`: Contains the definitions for all specialist agents.
-    -   `tools/`: Home for custom Python function tools.
--   `scripts/`: Holds all automation scripts for setting up the environment.
--   `data/`: Contains the raw data for the knowledge base and historical developer issues.
--   `deployment/`: Includes scripts for deploying the agent to Vertex AI Agent Engine.
+```
+adk-copilot/
+├── adk_copilot/                    # Core source code for the agent system
+│   ├── agent.py                    # Main orchestrator agent definition
+│   ├── prompts.py                  # System prompts for all agents
+│   ├── requirements.txt            # Python dependencies for the agent
+│   ├── entities/                   # Data models and structures
+│   │   ├── ticket.py              # SupportTicket Pydantic model
+│   │   └── __init__.py
+│   ├── sub_agents/                 # Specialized sub-agent implementations
+│   │   ├── ticket_analysis/        # Analyzes and categorizes user requests
+│   │   │   ├── agent.py
+│   │   │   └── __init__.py
+│   │   ├── knowledge_retrieval/    # RAG-based documentation search
+│   │   │   ├── agent.py
+│   │   │   └── __init__.py
+│   │   ├── db_retrieval/          # BigQuery historical data search
+│   │   │   ├── agent.py
+│   │   │   └── __init__.py
+│   │   ├── problem_solver/        # Synthesizes solutions from context
+│   │   │   ├── agent.py
+│   │   │   └── __init__.py
+│   │   ├── code_generator/        # Generates code examples and implementations
+│   │   │   ├── agent.py
+│   │   │   └── __init__.py
+│   │   ├── README.md              # Sub-agents documentation
+│   │   └── __init__.py
+│   ├── tools/                     # Custom Python function tools
+│   │   ├── tools.py               # RAG search and BigQuery tools
+│   │   ├── README.md              # Tools documentation
+│   │   └── __init__.py
+│   └── __init__.py
+├── scripts/                       # Environment setup and data preparation
+│   ├── scrape_adk_docs.py         # Scrapes ADK documentation for knowledge base
+│   ├── create_mock_db.py          # Generates mock historical ticket data
+│   ├── setup_bigquery.py         # Creates BigQuery dataset and uploads data
+│   ├── setup_rag.py              # Sets up Vertex AI RAG corpus and GCS bucket
+│   └── README.md                  # Scripts documentation
+├── data/                          # Data files and knowledge base
+│   ├── knowledge_base/            # Scraped ADK documentation files
+│   │   ├── adk_handbook.md        # Comprehensive ADK handbook
+│   │   ├── adk-docs.md           # Main documentation file
+│   │   ├── adk-docs_*.md         # Specific documentation sections
+│   │   ├── *.txt                 # Additional knowledge files
+│   │   └── rag.txt               # RAG-specific documentation
+│   ├── resolved_tickets.csv       # Mock historical support tickets
+│   └── README.md                  # Data documentation
+├── deployment/                    # Deployment scripts and configurations
+│   ├── deploy_agent_engine.py    # Deploy to Vertex AI Agent Engine
+│   ├── deploy_cloud_run.sh       # Deploy to Cloud Run with web UI
+│   └── README.md                  # Deployment documentation
+├── eval/                          # Evaluation and testing
+│   ├── test_eval.py              # Evaluation test script
+│   ├── data/                     # Test data
+│   │   └── conversation.test.json # Sample conversation for testing
+│   └── [additional test files]
+├── dist/                          # Build artifacts (created by poetry build)
+├── setup_environment.sh          # Main setup script (runs all setup steps)
+├── pyproject.toml                # Python project configuration and dependencies
+├── poetry.lock                   # Locked dependency versions
+├── README.md                     # This file - project documentation
+├── LICENSE                       # Project license
+└── .gitignore                    # Git ignore patterns
+```
+
+### Key Directory Purposes:
+
+**Core Application (`adk_copilot/`)**
+- **Main Agent**: `agent.py` orchestrates the multi-agent workflow
+- **Entities**: Pydantic models for structured data handling
+- **Sub-agents**: Five specialized agents for different aspects of developer assistance
+- **Tools**: Custom functions for RAG search and database queries
+
+**Data & Knowledge (`data/`)**
+- **Knowledge Base**: Comprehensive ADK documentation in markdown format
+- **Historical Data**: Mock support tickets for learning from past solutions
+
+**Automation (`scripts/`)**
+- **Environment Setup**: Scripts to configure Google Cloud services
+- **Data Preparation**: Tools to scrape docs and generate mock data
+
+**Deployment (`deployment/`)**
+- **Multiple Options**: Support for both Agent Engine and Cloud Run deployments
+- **Production Ready**: Scripts for scalable cloud deployment
+
+**Evaluation (`eval/`)**
+- **Testing Framework**: Tools for validating agent performance
+- **Test Data**: Sample conversations and expected outputs
 
 ## Disclaimer
 

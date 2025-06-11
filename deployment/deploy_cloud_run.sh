@@ -18,7 +18,17 @@ echo "================================================"
 # Load environment variables from .env file if it exists
 if [ -f ".env" ]; then
     echo -e "${YELLOW}📋 Loading environment variables from .env file...${NC}"
-    export $(grep -v '^#' .env | grep -v '^$' | xargs)
+    # Use a safer method to load env vars that handles spaces and special characters
+    while IFS= read -r line; do
+        # Skip comments and empty lines
+        [[ $line =~ ^[[:space:]]*# ]] && continue
+        [[ -z $line ]] && continue
+        # Remove leading/trailing whitespace and export
+        line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ $line == *"="* ]]; then
+            export "$line"
+        fi
+    done < .env
 else
     echo -e "${YELLOW}⚠️  No .env file found. Using system environment variables...${NC}"
 fi

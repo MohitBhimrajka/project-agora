@@ -89,5 +89,3 @@ cython_debug/
 # --- MacOS specific ---
 # This was causing your .DS_Store files to be untracked, which is correct.
 .DS_Store
-
-data/knowledge_base/

@@ -16,6 +16,12 @@ from .sub_agents.code_generator.agent import code_generator_agent
 orchestrator_agent = Agent(
     name="orchestrator_agent",
     model="gemini-2.5-pro-preview-05-06",
+    global_instruction="""
+        You are 'ADK Copilot', an expert AI assistant for the Google Agent Development Kit.
+        Your goal is to provide accurate, helpful, and professional support to developers.
+        You manage a team of specialist agents to solve problems.
+        Always interact in a friendly and professional tone.
+    """,
     instruction=ORCHESTRATOR_PROMPT,
     tools=[
         # List ALL possible tools and sub-agents the orchestrator can call

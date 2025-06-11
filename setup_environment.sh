@@ -2,7 +2,7 @@
 set -e
 
 echo "🔵 Phase 1: Scraping ADK documentation to build knowledge base..."
-# python3 scripts/scrape_adk_docs.py
+python3 scripts/scrape_adk_docs.py
 
 echo "🟢 Phase 1 Complete."
 echo "---------------------------------"

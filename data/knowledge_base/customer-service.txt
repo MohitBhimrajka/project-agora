@@ -1,0 +1,2964 @@
+Directory structure:
+└── customer-service/
+    ├── README.md
+    ├── pyproject.toml
+    ├── .env.example
+    ├── customer_service/
+    │   ├── __init__.py
+    │   ├── agent.py
+    │   ├── config.py
+    │   ├── prompts.py
+    │   ├── entities/
+    │   │   ├── __init__.py
+    │   │   └── customer.py
+    │   ├── shared_libraries/
+    │   │   ├── __init__.py
+    │   │   └── callbacks.py
+    │   └── tools/
+    │       ├── __init__.py
+    │       └── tools.py
+    ├── deployment/
+    │   └── deploy.py
+    ├── eval/
+    │   ├── __init__.py
+    │   ├── test_eval.py
+    │   ├── eval_data/
+    │   │   ├── full_conversation.test.json
+    │   │   ├── simple.test.json
+    │   │   └── test_config.json
+    │   └── sessions/
+    │       └── 123.session.json
+    └── tests/
+        ├── __init__.py
+        └── unit/
+            ├── __init__.py
+            ├── test_config.py
+            └── test_tools.py
+
+================================================
+File: README.md
+================================================
+# Cymbal Home & Garden Customer Service Agent
+
+This project implements an AI-powered customer service agent for Cymbal Home & Garden, a big-box retailer specializing in home improvement, gardening, and related supplies. The agent is designed to provide excellent customer service, assist customers with product selection, manage orders, schedule services, and offer personalized recommendations.
+
+## Overview
+
+The Cymbal Home & Garden Customer Service Agent is designed to provide a seamless and personalized shopping experience for customers. It leverages Gemini to understand customer needs, offer tailored product recommendations, manage orders, and schedule services. The agent is designed to be friendly, empathetic, and highly efficient, ensuring that customers receive the best possible service.
+
+## Agent Details
+
+The key features of the Customer Service Agent include:
+
+| Feature            | Description             |
+| ------------------ | ----------------------- |
+| _Interaction Type_ | Conversational          |
+| _Complexity_       | Intermediate            |
+| _Agent Type_       | Single Agent            |
+| _Components_       | Tools, Multimodal, Live |
+| _Vertical_         | Retail                  |
+
+### Agent Architecture
+
+![Customer Service Agent Workflow](customer_service_workflow.png)
+
+The agent is built using a multi-modal architecture, combining text and video inputs to provide a rich and interactive experience. It mocks interactions with various tools and services, including a product catalog, inventory management, order processing, and appointment scheduling systems. The agent also utilizes a session management system to maintain context across interactions and personalize the customer experience.
+
+It is important to notice that this agent is not integrated to an actual backend and the behaviour is based on mocked tools. If you would like to implement this agent with actual backend integration you will need to edit [customer_service/tools.py](./customer_service/tools/tools.py)
+
+Because the tools are mocked you might notice that some requested changes will not be applied. For instance newly added item to cart will not show if later a user asks the agent to list all items.
+
+### Key Features
+
+- **Personalized Customer Assistance:**
+  - Greets returning customers by name and acknowledges their purchase history.
+  - Maintains a friendly, empathetic, and helpful tone.
+- **Product Identification and Recommendation:**
+  - Assists customers in identifying plants, even from vague descriptions.
+  - Requests and utilizes visual aids (video) to accurately identify plants.
+  - Provides tailored product recommendations based on identified plants, customer needs, and location (e.g., Las Vegas, NV).
+  - Offers alternatives to items in the customer's cart if better options exist.
+- **Order Management:**
+  - Accesses and displays the contents of a customer's shopping cart.
+  - Modifies the cart by adding and removing items based on recommendations and customer approval.
+  - Informs customers about relevant sales and promotions.
+- **Upselling and Service Promotion:**
+  - Suggests relevant services, such as professional planting services.
+  - Handles inquiries about pricing and discounts, including competitor offers.
+  - Requests manager approval for discounts when necessary.
+- **Appointment Scheduling:**
+  - Schedules appointments for planting services (or other services).
+  - Checks available time slots and presents them to the customer.
+  - Confirms appointment details and sends a confirmation/calendar invite.
+- **Customer Support and Engagement:**
+  - Sends via sms or email plant care instructions relevant to the customer's purchases and location.
+  - Offers a discount QR code for future in-store purchases to loyal customers.
+- **Tool-Based Interactions:**
+  - The agent interacts with the user using a set of tools.
+  - The agent can use multiple tools in a single interaction.
+  - The agent can use the tools to get information and to modify the user's transaction state.
+- **Evaluation:**
+  - The agent can be evaluated using a set of test cases.
+  - The evaluation is based on the agent's ability to use the tools and to respond to the user's requests.
+
+#### Agent State - Default customer information
+
+The agent's session state is preloaded with sample customer data, simulating a real conversation. Ideally, this state should be loaded from a CRM system at the start of the conversation, using the user's information. This assumes that either the agent authenticates the user or the user is already logged in. If this behavior is expected to be modified edit the [get_customer(current_customer_id: str) in customer.py](./customer_service/entities/customer.py)
+
+#### Tools
+
+The agent has access to the following tools:
+
+- `send_call_companion_link(phone_number: str) -> str`: Sends a link for video connection.
+- `approve_discount(type: str, value: float, reason: str) -> str`: Approves a discount (within pre-defined limits).
+- `sync_ask_for_approval(type: str, value: float, reason: str) -> str`: Requests discount approval from a manager.
+- `update_salesforce_crm(customer_id: str, details: str) -> dict`: Updates customer records in Salesforce.
+- `access_cart_information(customer_id: str) -> dict`: Retrieves the customer's cart contents.
+- `modify_cart(customer_id: str, items_to_add: list, items_to_remove: list) -> dict`: Updates the customer's cart.
+- `get_product_recommendations(plant_type: str, customer_id: str) -> dict`: Suggests suitable products.
+- `check_product_availability(product_id: str, store_id: str) -> dict`: Checks product stock.
+- `schedule_planting_service(customer_id: str, date: str, time_range: str, details: str) -> dict`: Books a planting service appointment.
+- `get_available_planting_times(date: str) -> list`: Retrieves available time slots.
+- `send_care_instructions(customer_id: str, plant_type: str, delivery_method: str) -> dict`: Sends plant care information.
+- `generate_qr_code(customer_id: str, discount_value: float, discount_type: str, expiration_days: int) -> dict`: Creates a discount QR code.
+
+## Setup and Installations
+
+### Prerequisites
+
+- Python 3.11+
+- Poetry (for dependency management)
+- Google ADK SDK (installed via Poetry)
+- Google Cloud Project (for Vertex AI Gemini integration)
+
+### Installation
+1.  **Prerequisites:**
+
+    For the Agent Engine deployment steps, you will need
+    a Google Cloud Project. Once you have created your project,
+    [install the Google Cloud SDK](https://cloud.google.com/sdk/docs/install).
+    Then run the following command to authenticate with your project:
+    ```bash
+    gcloud auth login
+    ```
+    You also need to enable certain APIs. Run the following command to enable
+    the required APIs:
+    ```bash
+    gcloud services enable aiplatform.googleapis.com
+    ```
+
+1.  Clone the repository:
+
+    ```bash
+    git clone https://github.com/google/adk-samples.git
+    cd adk-samples/python/agents/customer-service
+    ```
+
+    For the rest of this tutorial **ensure you remain in the `agents/customer-service` directory**.
+
+2.  Install dependencies using Poetry:
+
+- if you have not installed poetry before then run `pip install poetry` first. then you can create your virtual environment and install all dependencies using:
+
+  ```bash
+  poetry install
+  ```
+
+  To activate the virtual environment run:
+
+  ```bash
+  poetry env activate
+  ```
+
+3.  Set up Google Cloud credentials:
+
+    - Ensure you have a Google Cloud project.
+    - Make sure you have the Vertex AI API enabled in your project.
+    - Set the `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_CLOUD_PROJECT`, and `GOOGLE_CLOUD_LOCATION` environment variables. You can set them in your `.env` file (modify and rename .env_sample file to .env) or directly in your shell. Alternatively you can edit [customer_service/config.py](./customer_service/config.py)
+
+    ```bash
+    export GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_NAME_HERE
+    export GOOGLE_GENAI_USE_VERTEXAI=1
+    export GOOGLE_CLOUD_LOCATION=us-central1
+    ```
+
+## Running the Agent
+
+You can run the agent using the ADK commant in your terminal.
+from the root project directory:
+
+1.  Run agent in CLI:
+
+    ```bash
+    adk run customer_service
+    ```
+
+2.  Run agent with ADK Web UI:
+    ```bash
+    adk web
+    ```
+    Select the customer_service from the dropdown
+
+### Example Interaction
+
+Here's a quick example of how a user might interact with the agent:
+
+**User:**:
+hi there
+
+**Agent**:
+Hey Alex, I see you've been a Cymbal Home & Garden customer for a couple of years now - we appreciate your business! I also see you have a few things in your cart already. How can I help you get your garden growing today?
+
+**User**:
+Yeah, so I'm a bit confused. I just bought some...uh...plants or flowers that I wanted to put in the backyard. They just say "sun loving annuals" on them. I totally spaced on picking up potting soil so I'm placing an order for pickup now. The problem is, I'm not sure if the potting soil and fertilizer I picked out are the right ones.
+
+**Agent**:
+I understand – it can be tricky when you're not quite sure what you've got! Let's figure this out together. Don't worry, we'll get your plants the right care. To best help you, would you be willing to share a quick video of the plants you've purchased? That will help me identify them and make sure you have the right supplies.
+
+**User**:
+Sure, how do I do that?
+
+**Agent**:
+I just texted you a link to the number in your profile. Just click on that, and it'll open a secure video connection.
+
+```tool_code
+print(send_call_companion_link(phone_number='+12065550123'))
+```
+
+```tool_outputs
+{'status': 'success', 'message': 'Link sent to +12065550123'}
+```
+
+**User**:
+Okay, I clicked the link...can you see this?
+
+**Agent**:
+Yes I can see you Alex! Can you go ahead and point the camera at your plants so I can inspect them?
+
+**User**:
+Yes of course!
+...
+
+## Evaluating the Agent
+
+Evaluation tests assess the overall performance and capabilities of the agent in a holistic manner.
+
+**Steps:**
+
+1.  **Run Evaluation Tests:**
+
+    ```bash
+    pytest eval
+    ```
+
+    - This command executes all test files within the `eval` directory.
+
+## Unit Tests
+
+Unit tests focus on testing individual units or components of the code in isolation.
+
+**Steps:**
+
+1.  **Run Unit Tests:**
+
+    ```bash
+    pytest tests/unit
+    ```
+
+    - This command executes all test files within the `tests/unit` directory.
+
+## Configuration
+
+You can find further configuration parameters in [customer_service/config.py](./customer_service/config.py). This incudes parameters such as agent name, app name and llm model used by the agent.
+
+## Deployment on Google Agent Engine
+
+In order to inherit all dependencies of your agent you can build the wheel file of the agent and run the deployment.
+
+1.  **Build Customer Service Agent WHL file**
+
+    ```bash
+    poetry build --format=wheel --output=deployment
+    ```
+
+1.  **Deploy the agent to agents engine**
+    It is important to run deploy.py from within deployment folder so paths are correct
+
+    ```bash
+    cd deployment
+    python deploy.py
+    ```
+
+### Testing deployment
+
+This code snippet is an example of how to test the deployed agent.
+
+```
+import vertexai
+from customer_service.config import Config
+from vertexai.preview.reasoning_engines import AdkApp
+
+
+configs = Config()
+
+vertexai.init(
+    project="<GOOGLE_CLOUD_LOCATION_PROJECT_ID>",
+    location="<GOOGLE_CLOUD_LOCATION>"
+)
+
+# get the agent based on resource id
+agent_engine = vertexai.agent_engines.get('DEPLOYMENT_RESOURCE_NAME') # looks like this projects/PROJECT_ID/locations/LOCATION/reasoningEngines/REASONING_ENGINE_ID
+
+for event in remote_agent.stream_query(
+    user_id=USER_ID,
+    session_id=session["id"],
+    message="Hello!",
+):
+    print(event)
+
+```
+
+## Disclaimer
+
+This agent sample is provided for illustrative purposes only and is not intended for production use. It serves as a basic example of an agent and a foundational starting point for individuals or teams to develop their own agents.
+
+This sample has not been rigorously tested, may contain bugs or limitations, and does not include features or optimizations typically required for a production environment (e.g., robust error handling, security measures, scalability, performance considerations, comprehensive logging, or advanced configuration options).
+
+Users are solely responsible for any further development, testing, security hardening, and deployment of agents based on this sample. We recommend thorough review, testing, and the implementation of appropriate safeguards before using any derived agent in a live or critical system.
+
+
+================================================
+File: pyproject.toml
+================================================
+[tool.poetry]
+name = "customer-service"
+version = "0.1.0"
+description = "customer service demo using Agent Development Kit"
+authors = ["Christos Aniftos <aniftos@google.com>"]
+license = "Apache License 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic-settings = "^2.8.1"
+tabulate = "^0.9.0"
+cloudpickle = "^3.1.1"
+pylint = "^3.3.6"
+google-cloud-aiplatform = { extras = [
+    "adk",
+    "agent_engine",
+], version = "^1.93.0" }
+google-adk = "^1.0.0"
+jsonschema = "^4.23.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-mock = "^3.14.0"
+scikit-learn = "^1.6.1"
+pytest-cov = "^6.0.0"
+pytest-asyncio = "^0.25.3"
+flake8-pyproject = "^1.2.3"
+pylint = "^3.3.6"
+pyink = "^24.10.1"
+jsonschema = "^4.23.0"
+google-cloud-aiplatform = { extras = ["evaluation"], version = "^1.93.0" }
+
+
+[tool.pytest.ini_options]
+console_output_style = "progress"
+addopts = "-vv -s"
+#addopts = "-vv -s --pdb"
+testpaths = ["tests/", "eval/"]
+markers = ["unit"]
+log_level = "ERROR"
+log_cli = false
+log_auto_indent = true
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+log_cli_format = "[%(asctime)s] %(levelname)s (%(funcName)s) \t [%(pathname)s:%(lineno)d] %(message)s"
+filterwarnings = ["ignore::UserWarning"]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.mason"
+
+
+[tool.pyink]
+line-length = 80
+pyink-indentation = 4
+pyink-use-majority-quotes = true
+
+
+
+================================================
+File: .env.example
+================================================
+# Copy as .env file and fill your values below
+
+# Choose 1 for Gemini Vertex AI or 0 Gemini Developer API 
+GOOGLE_GENAI_USE_VERTEXAI=1
+
+GOOGLE_API_KEY=YOUR_VALUE_HERE #  'Google Gemini Developer API Key, required if GOOGLE_GENAI_USE_VERTEXAI=0.'
+
+# Vertex backend config
+GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID_HERE
+GOOGLE_CLOUD_LOCATION=us-central1
+
+
+
+================================================
+File: customer_service/__init__.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Includes all shared libraries for the agent."""
+
+from . import agent
+
+
+__all__ = ["agent"]
+
+
+
+================================================
+File: customer_service/agent.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.§
+
+"""Agent module for the customer service agent."""
+
+import logging
+import warnings
+from google.adk import Agent
+from .config import Config
+from .prompts import GLOBAL_INSTRUCTION, INSTRUCTION
+from .shared_libraries.callbacks import (
+    rate_limit_callback,
+    before_agent,
+    before_tool,
+    after_tool
+)
+from .tools.tools import (
+    send_call_companion_link,
+    approve_discount,
+    sync_ask_for_approval,
+    update_salesforce_crm,
+    access_cart_information,
+    modify_cart,
+    get_product_recommendations,
+    check_product_availability,
+    schedule_planting_service,
+    get_available_planting_times,
+    send_care_instructions,
+    generate_qr_code,
+)
+
+warnings.filterwarnings("ignore", category=UserWarning, module=".*pydantic.*")
+
+configs = Config()
+
+# configure logging __name__
+logger = logging.getLogger(__name__)
+
+
+root_agent = Agent(
+    model=configs.agent_settings.model,
+    global_instruction=GLOBAL_INSTRUCTION,
+    instruction=INSTRUCTION,
+    name=configs.agent_settings.name,
+    tools=[
+        send_call_companion_link,
+        approve_discount,
+        sync_ask_for_approval,
+        update_salesforce_crm,
+        access_cart_information,
+        modify_cart,
+        get_product_recommendations,
+        check_product_availability,
+        schedule_planting_service,
+        get_available_planting_times,
+        send_care_instructions,
+        generate_qr_code,
+    ],
+    before_tool_callback=before_tool,
+    after_tool_callback=after_tool,
+    before_agent_callback=before_agent,
+    before_model_callback=rate_limit_callback,
+)
+
+
+
+================================================
+File: customer_service/config.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Configuration module for the customer service agent."""
+
+import os
+import logging
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BaseModel, Field
+
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+
+class AgentModel(BaseModel):
+    """Agent model settings."""
+
+    name: str = Field(default="customer_service_agent")
+    model: str = Field(default="gemini-2.0-flash-001")
+
+
+class Config(BaseSettings):
+    """Configuration settings for the customer service agent."""
+
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "../.env"
+        ),
+        env_prefix="GOOGLE_",
+        case_sensitive=True,
+    )
+    agent_settings: AgentModel = Field(default=AgentModel())
+    app_name: str = "customer_service_app"
+    CLOUD_PROJECT: str = Field(default="my_project")
+    CLOUD_LOCATION: str = Field(default="us-central1")
+    GENAI_USE_VERTEXAI: str = Field(default="1")
+    API_KEY: str | None = Field(default="")
+
+
+
+================================================
+File: customer_service/prompts.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Global instruction and instruction for the customer service agent."""
+
+from .entities.customer import Customer
+
+GLOBAL_INSTRUCTION = f"""
+The profile of the current customer is:  {Customer.get_customer("123").to_json()}
+"""
+
+INSTRUCTION = """
+You are "Project Pro," the primary AI assistant for Cymbal Home & Garden, a big-box retailer specializing in home improvement, gardening, and related supplies.
+Your main goal is to provide excellent customer service, help customers find the right products, assist with their gardening needs, and schedule services.
+Always use conversation context/state or tools to get information. Prefer tools over your own internal knowledge
+
+**Core Capabilities:**
+
+1.  **Personalized Customer Assistance:**
+    *   Greet returning customers by name and acknowledge their purchase history and current cart contents.  Use information from the provided customer profile to personalize the interaction.
+    *   Maintain a friendly, empathetic, and helpful tone.
+
+2.  **Product Identification and Recommendation:**
+    *   Assist customers in identifying plants, even from vague descriptions like "sun-loving annuals."
+    *   Request and utilize visual aids (video) to accurately identify plants.  Guide the user through the video sharing process.
+    *   Provide tailored product recommendations (potting soil, fertilizer, etc.) based on identified plants, customer needs, and their location (Las Vegas, NV). Consider the climate and typical gardening challenges in Las Vegas.
+    *   Offer alternatives to items in the customer's cart if better options exist, explaining the benefits of the recommended products.
+    *   Always check the customer profile information before asking the customer questions. You might already have the answer
+
+3.  **Order Management:**
+    *   Access and display the contents of a customer's shopping cart.
+    *   Modify the cart by adding and removing items based on recommendations and customer approval.  Confirm changes with the customer.
+    *   Inform customers about relevant sales and promotions on recommended products.
+
+4.  **Upselling and Service Promotion:**
+    *   Suggest relevant services, such as professional planting services, when appropriate (e.g., after a plant purchase or when discussing gardening difficulties).
+    *   Handle inquiries about pricing and discounts, including competitor offers.
+    *   Request manager approval for discounts when necessary, according to company policy.  Explain the approval process to the customer.
+
+5.  **Appointment Scheduling:**
+    *   If planting services (or other services) are accepted, schedule appointments at the customer's convenience.
+    *   Check available time slots and clearly present them to the customer.
+    *   Confirm the appointment details (date, time, service) with the customer.
+    *   Send a confirmation and calendar invite.
+
+6.  **Customer Support and Engagement:**
+    *   Send plant care instructions relevant to the customer's purchases and location.
+    *   Offer a discount QR code for future in-store purchases to loyal customers.
+
+**Tools:**
+You have access to the following tools to assist you:
+
+*   `send_call_companion_link: Sends a link for video connection. Use this tool to start live streaming with the user. When user agrees with you to share video, use this tool to start the process 
+*   `approve_discount: Approves a discount (within pre-defined limits).
+*   `sync_ask_for_approval: Requests discount approval from a manager (synchronous version).
+*   `update_salesforce_crm: Updates customer records in Salesforce after the customer has completed a purchase.
+*   `access_cart_information: Retrieves the customer's cart contents. Use this to check customers cart contents or as a check before related operations
+*   `modify_cart: Updates the customer's cart. before modifying a cart first access_cart_information to see what is already in the cart
+*   `get_product_recommendations: Suggests suitable products for a given plant type. i.e petunias. before recomending a product access_cart_information so you do not recommend something already in cart. if the product is in cart say you already have that
+*   `check_product_availability: Checks product stock.
+*   `schedule_planting_service: Books a planting service appointment.
+*   `get_available_planting_times: Retrieves available time slots.
+*   `send_care_instructions: Sends plant care information.
+*   `generate_qr_code: Creates a discount QR code 
+
+**Constraints:**
+
+*   You must use markdown to render any tables.
+*   **Never mention "tool_code", "tool_outputs", or "print statements" to the user.** These are internal mechanisms for interacting with tools and should *not* be part of the conversation.  Focus solely on providing a natural and helpful customer experience.  Do not reveal the underlying implementation details.
+*   Always confirm actions with the user before executing them (e.g., "Would you like me to update your cart?").
+*   Be proactive in offering help and anticipating customer needs.
+*   Don't output code even if user asks for it.
+
+"""
+
+
+
+================================================
+File: customer_service/entities/__init__.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+================================================
+File: customer_service/entities/customer.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Customer entity module."""
+
+from typing import List, Dict, Optional
+from pydantic import BaseModel, Field, ConfigDict
+
+
+class Address(BaseModel):
+    """
+    Represents a customer's address.
+    """
+
+    street: str
+    city: str
+    state: str
+    zip: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Product(BaseModel):
+    """
+    Represents a product in a customer's purchase history.
+    """
+
+    product_id: str
+    name: str
+    quantity: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Purchase(BaseModel):
+    """
+    Represents a customer's purchase.
+    """
+
+    date: str
+    items: List[Product]
+    total_amount: float
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CommunicationPreferences(BaseModel):
+    """
+    Represents a customer's communication preferences.
+    """
+
+    email: bool = True
+    sms: bool = True
+    push_notifications: bool = True
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GardenProfile(BaseModel):
+    """
+    Represents a customer's garden profile.
+    """
+
+    type: str
+    size: str
+    sun_exposure: str
+    soil_type: str
+    interests: List[str]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Customer(BaseModel):
+    """
+    Represents a customer.
+    """
+
+    account_number: str
+    customer_id: str
+    customer_first_name: str
+    customer_last_name: str
+    email: str
+    phone_number: str
+    customer_start_date: str
+    years_as_customer: int
+    billing_address: Address
+    purchase_history: List[Purchase]
+    loyalty_points: int
+    preferred_store: str
+    communication_preferences: CommunicationPreferences
+    garden_profile: GardenProfile
+    scheduled_appointments: Dict = Field(default_factory=dict)
+    model_config = ConfigDict(from_attributes=True)
+
+    def to_json(self) -> str:
+        """
+        Converts the Customer object to a JSON string.
+
+        Returns:
+            A JSON string representing the Customer object.
+        """
+        return self.model_dump_json(indent=4)
+
+    @staticmethod
+    def get_customer(current_customer_id: str) -> Optional["Customer"]:
+        """
+        Retrieves a customer based on their ID.
+
+        Args:
+            customer_id: The ID of the customer to retrieve.
+
+        Returns:
+            The Customer object if found, None otherwise.
+        """
+        # In a real application, this would involve a database lookup.
+        # For this example, we'll just return a dummy customer.
+        return Customer(
+            customer_id=current_customer_id,
+            account_number="428765091",
+            customer_first_name="Alex",
+            customer_last_name="Johnson",
+            email="alex.johnson@example.com",
+            phone_number="+1-702-555-1212",
+            customer_start_date="2022-06-10",
+            years_as_customer=2,
+            billing_address=Address(
+                street="123 Main St", city="Anytown", state="CA", zip="12345"
+            ),
+            purchase_history=[  # Example purchase history
+                Purchase(
+                    date="2023-03-05",
+                    items=[
+                        Product(
+                            product_id="fert-111",
+                            name="All-Purpose Fertilizer",
+                            quantity=1,
+                        ),
+                        Product(
+                            product_id="trowel-222",
+                            name="Gardening Trowel",
+                            quantity=1,
+                        ),
+                    ],
+                    total_amount=35.98,
+                ),
+                Purchase(
+                    date="2023-07-12",
+                    items=[
+                        Product(
+                            product_id="seeds-333",
+                            name="Tomato Seeds (Variety Pack)",
+                            quantity=2,
+                        ),
+                        Product(
+                            product_id="pots-444",
+                            name="Terracotta Pots (6-inch)",
+                            quantity=4,
+                        ),
+                    ],
+                    total_amount=42.5,
+                ),
+                Purchase(
+                    date="2024-01-20",
+                    items=[
+                        Product(
+                            product_id="gloves-555",
+                            name="Gardening Gloves (Leather)",
+                            quantity=1,
+                        ),
+                        Product(
+                            product_id="pruner-666",
+                            name="Pruning Shears",
+                            quantity=1,
+                        ),
+                    ],
+                    total_amount=55.25,
+                ),
+            ],
+            loyalty_points=133,
+            preferred_store="Anytown Garden Store",
+            communication_preferences=CommunicationPreferences(
+                email=True, sms=False, push_notifications=True
+            ),
+            garden_profile=GardenProfile(
+                type="backyard",
+                size="medium",
+                sun_exposure="full sun",
+                soil_type="unknown",
+                interests=["flowers", "vegetables"],
+            ),
+            scheduled_appointments={},
+        )
+
+
+
+================================================
+File: customer_service/shared_libraries/__init__.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+""" includes all shared libraries for the agent."""
+from .callbacks import rate_limit_callback
+from .callbacks import before_tool
+from .callbacks import before_agent
+
+
+__all__ = ["rate_limit_callback", "before_tool", "before_agent"]
+
+
+
+================================================
+File: customer_service/shared_libraries/callbacks.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Callback functions for FOMC Research Agent."""
+
+import logging
+import time
+
+from google.adk.agents.callback_context import CallbackContext
+from google.adk.models import LlmRequest
+from typing import Any, Dict, Optional, Tuple
+from google.adk.tools import BaseTool
+from google.adk.agents.invocation_context import InvocationContext
+from google.adk.sessions.state import State
+from google.adk.tools.tool_context import ToolContext
+from jsonschema import ValidationError
+from customer_service.entities.customer import Customer
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+RATE_LIMIT_SECS = 60
+RPM_QUOTA = 10
+
+
+def rate_limit_callback(
+    callback_context: CallbackContext, llm_request: LlmRequest
+) -> None:
+    """Callback function that implements a query rate limit.
+
+    Args:
+      callback_context: A CallbackContext obj representing the active callback
+        context.
+      llm_request: A LlmRequest obj representing the active LLM request.
+    """
+    for content in llm_request.contents:
+        for part in content.parts:
+            if part.text=="":
+                part.text=" "
+
+    
+    
+
+    now = time.time()
+    if "timer_start" not in callback_context.state:
+
+        callback_context.state["timer_start"] = now
+        callback_context.state["request_count"] = 1
+        logger.debug(
+            "rate_limit_callback [timestamp: %i, "
+            "req_count: 1, elapsed_secs: 0]",
+            now,
+        )
+        return
+
+    request_count = callback_context.state["request_count"] + 1
+    elapsed_secs = now - callback_context.state["timer_start"]
+    logger.debug(
+        "rate_limit_callback [timestamp: %i, request_count: %i,"
+        " elapsed_secs: %i]",
+        now,
+        request_count,
+        elapsed_secs,
+    )
+
+    if request_count > RPM_QUOTA:
+        delay = RATE_LIMIT_SECS - elapsed_secs + 1
+        if delay > 0:
+            logger.debug("Sleeping for %i seconds", delay)
+            time.sleep(delay)
+        callback_context.state["timer_start"] = now
+        callback_context.state["request_count"] = 1
+    else:
+        callback_context.state["request_count"] = request_count
+
+    return
+
+def validate_customer_id(customer_id: str, session_state: State) -> Tuple[bool, str]:
+    """
+        Validates the customer ID against the customer profile in the session state.
+        
+        Args:
+            customer_id (str): The ID of the customer to validate.
+            session_state (State): The session state containing the customer profile.
+        
+        Returns:
+            A tuple containing an bool (True/False) and a String. 
+            When False, a string with the error message to pass to the model for deciding
+            what actions to take to remediate.
+    """
+    if 'customer_profile' not in session_state:
+        return False, "No customer profile selected. Please select a profile."
+
+    try:
+        # We read the profile from the state, where it is set deterministically
+        # at the beginning of the session.
+        c = Customer.model_validate_json(session_state['customer_profile'])
+        if customer_id == c.customer_id:
+            return True, None
+        else:
+            return False, "You cannot use the tool with customer_id " +customer_id+", only for "+c.customer_id+"."
+    except ValidationError as e:
+        return False, "Customer profile couldn't be parsed. Please reload the customer data. "
+
+def lowercase_value(value):
+    """Make dictionary lowercase"""
+    if isinstance(value, dict):
+        return (dict(k, lowercase_value(v)) for k, v in value.items())
+    elif isinstance(value, str):
+        return value.lower()
+    elif isinstance(value, (list, set, tuple)):
+        tp = type(value)
+        return tp(lowercase_value(i) for i in value)
+    else:
+        return value
+
+
+# Callback Methods
+def before_tool(
+    tool: BaseTool, args: Dict[str, Any], tool_context: CallbackContext
+):
+
+    # i make sure all values that the agent is sending to tools are lowercase
+    lowercase_value(args)
+
+    # Several tools require customer_id as input. We don't want to rely
+    # solely on the model picking the right customer id. We validate it.
+    # Alternative: tools can fetch the customer_id from the state directly.
+    if 'customer_id' in args:
+        valid, err = validate_customer_id(args['customer_id'], tool_context.state)
+        if not valid:
+            return err
+
+    # Check for the next tool call and then act accordingly.
+    # Example logic based on the tool being called.
+    if tool.name == "sync_ask_for_approval":
+        amount = args.get("value", None)
+        if amount <= 10:  # Example business rule
+            return {
+                "status": "approved",
+                "message": "You can approve this discount; no manager needed."
+            }
+        # Add more logic checks here as needed for your tools.
+
+    if tool.name == "modify_cart":
+        if (
+            args.get("items_added") is True
+            and args.get("items_removed") is True
+        ):
+            return {"result": "I have added and removed the requested items."}
+    return None
+
+def after_tool(
+    tool: BaseTool, args: Dict[str, Any], tool_context: ToolContext, tool_response: Dict
+) -> Optional[Dict]:
+
+  # After approvals, we perform operations deterministically in the callback
+  # to apply the discount in the cart.
+  if tool.name == "sync_ask_for_approval":
+    if tool_response['status'] == "approved":
+        logger.debug("Applying discount to the cart")
+        # Actually make changes to the cart
+
+  if tool.name == "approve_discount":
+    if tool_response['status'] == "ok":
+        logger.debug("Applying discount to the cart")
+        # Actually make changes to the cart
+
+  return None
+
+# checking that the customer profile is loaded as state.
+def before_agent(callback_context: InvocationContext):
+    # In a production agent, this is set as part of the
+    # session creation for the agent. 
+    if "customer_profile" not in callback_context.state:
+        callback_context.state["customer_profile"] = Customer.get_customer(
+            "123"
+        ).to_json()
+
+    # logger.info(callback_context.state["customer_profile"])
+
+
+
+================================================
+File: customer_service/tools/__init__.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+================================================
+File: customer_service/tools/tools.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# add docstring to this module
+"""Tools module for the customer service agent."""
+
+import logging
+import uuid
+from datetime import datetime, timedelta
+from google.adk.tools import ToolContext
+
+logger = logging.getLogger(__name__)
+
+
+def send_call_companion_link(phone_number: str) -> str:
+    """
+    Sends a link to the user's phone number to start a video session.
+
+    Args:
+        phone_number (str): The phone number to send the link to.
+
+    Returns:
+        dict: A dictionary with the status and message.
+
+    Example:
+        >>> send_call_companion_link(phone_number='+12065550123')
+        {'status': 'success', 'message': 'Link sent to +12065550123'}
+    """
+
+    logger.info("Sending call companion link to %s", phone_number)
+
+    return {"status": "success", "message": f"Link sent to {phone_number}"}
+
+
+def approve_discount(discount_type: str, value: float, reason: str) -> str:
+    """
+    Approve the flat rate or percentage discount requested by the user.
+
+    Args:
+        discount_type (str): The type of discount, either "percentage" or "flat".
+        value (float): The value of the discount.
+        reason (str): The reason for the discount.
+
+    Returns:
+        str: A JSON string indicating the status of the approval.
+
+    Example:
+        >>> approve_discount(type='percentage', value=10.0, reason='Customer loyalty')
+        '{"status": "ok"}'
+    """
+    if value > 10:
+        logger.info("Denying %s discount of %s", discount_type, value)
+        # Send back a reason for the error so that the model can recover.
+        return {"status": "rejected",
+                "message": "discount too large. Must be 10 or less."}
+    logger.info(
+        "Approving a %s discount of %s because %s", discount_type, value, reason
+    )
+    return {"status": "ok"}
+
+def sync_ask_for_approval(discount_type: str, value: float, reason: str) -> str:
+    """
+    Asks the manager for approval for a discount.
+
+    Args:
+        discount_type (str): The type of discount, either "percentage" or "flat".
+        value (float): The value of the discount.
+        reason (str): The reason for the discount.
+
+    Returns:
+        str: A JSON string indicating the status of the approval.
+
+    Example:
+        >>> sync_ask_for_approval(type='percentage', value=15, reason='Customer loyalty')
+        '{"status": "approved"}'
+    """
+    logger.info(
+        "Asking for approval for a %s discount of %s because %s",
+        discount_type,
+        value,
+        reason,
+    )
+    return {"status": "approved"}
+
+
+def update_salesforce_crm(customer_id: str, details: dict) -> dict:
+    """
+    Updates the Salesforce CRM with customer details.
+
+    Args:
+        customer_id (str): The ID of the customer.
+        details (str): A dictionary of details to update in Salesforce.
+
+    Returns:
+        dict: A dictionary with the status and message.
+
+    Example:
+        >>> update_salesforce_crm(customer_id='123', details={
+            'appointment_date': '2024-07-25',
+            'appointment_time': '9-12',
+            'services': 'Planting',
+            'discount': '15% off planting',
+            'qr_code': '10% off next in-store purchase'})
+        {'status': 'success', 'message': 'Salesforce record updated.'}
+    """
+    logger.info(
+        "Updating Salesforce CRM for customer ID %s with details: %s",
+        customer_id,
+        details,
+    )
+    return {"status": "success", "message": "Salesforce record updated."}
+
+
+def access_cart_information(customer_id: str) -> dict:
+    """
+    Args:
+        customer_id (str): The ID of the customer.
+
+    Returns:
+        dict: A dictionary representing the cart contents.
+
+    Example:
+        >>> access_cart_information(customer_id='123')
+        {'items': [{'product_id': 'soil-123', 'name': 'Standard Potting Soil', 'quantity': 1}, {'product_id': 'fert-456', 'name': 'General Purpose Fertilizer', 'quantity': 1}], 'subtotal': 25.98}
+    """
+    logger.info("Accessing cart information for customer ID: %s", customer_id)
+
+    # MOCK API RESPONSE - Replace with actual API call
+    mock_cart = {
+        "items": [
+            {
+                "product_id": "soil-123",
+                "name": "Standard Potting Soil",
+                "quantity": 1,
+            },
+            {
+                "product_id": "fert-456",
+                "name": "General Purpose Fertilizer",
+                "quantity": 1,
+            },
+        ],
+        "subtotal": 25.98,
+    }
+    return mock_cart
+
+
+def modify_cart(
+    customer_id: str, items_to_add: list[dict], items_to_remove: list[dict]
+) -> dict:
+    """Modifies the user's shopping cart by adding and/or removing items.
+
+    Args:
+        customer_id (str): The ID of the customer.
+        items_to_add (list): A list of dictionaries, each with 'product_id' and 'quantity'.
+        items_to_remove (list): A list of product_ids to remove.
+
+    Returns:
+        dict: A dictionary indicating the status of the cart modification.
+    Example:
+        >>> modify_cart(customer_id='123', items_to_add=[{'product_id': 'soil-456', 'quantity': 1}, {'product_id': 'fert-789', 'quantity': 1}], items_to_remove=[{'product_id': 'fert-112', 'quantity': 1}])
+        {'status': 'success', 'message': 'Cart updated successfully.', 'items_added': True, 'items_removed': True}
+    """
+
+    logger.info("Modifying cart for customer ID: %s", customer_id)
+    logger.info("Adding items: %s", items_to_add)
+    logger.info("Removing items: %s", items_to_remove)
+    # MOCK API RESPONSE - Replace with actual API call
+    return {
+        "status": "success",
+        "message": "Cart updated successfully.",
+        "items_added": True,
+        "items_removed": True,
+    }
+
+
+def get_product_recommendations(plant_type: str, customer_id: str) -> dict:
+    """Provides product recommendations based on the type of plant.
+
+    Args:
+        plant_type: The type of plant (e.g., 'Petunias', 'Sun-loving annuals').
+        customer_id: Optional customer ID for personalized recommendations.
+
+    Returns:
+        A dictionary of recommended products. Example:
+        {'recommendations': [
+            {'product_id': 'soil-456', 'name': 'Bloom Booster Potting Mix', 'description': '...'},
+            {'product_id': 'fert-789', 'name': 'Flower Power Fertilizer', 'description': '...'}
+        ]}
+    """
+    #
+    logger.info(
+        "Getting product recommendations for plant " "type: %s and customer %s",
+        plant_type,
+        customer_id,
+    )
+    # MOCK API RESPONSE - Replace with actual API call or recommendation engine
+    if plant_type.lower() == "petunias":
+        recommendations = {
+            "recommendations": [
+                {
+                    "product_id": "soil-456",
+                    "name": "Bloom Booster Potting Mix",
+                    "description": "Provides extra nutrients that Petunias love.",
+                },
+                {
+                    "product_id": "fert-789",
+                    "name": "Flower Power Fertilizer",
+                    "description": "Specifically formulated for flowering annuals.",
+                },
+            ]
+        }
+    else:
+        recommendations = {
+            "recommendations": [
+                {
+                    "product_id": "soil-123",
+                    "name": "Standard Potting Soil",
+                    "description": "A good all-purpose potting soil.",
+                },
+                {
+                    "product_id": "fert-456",
+                    "name": "General Purpose Fertilizer",
+                    "description": "Suitable for a wide variety of plants.",
+                },
+            ]
+        }
+    return recommendations
+
+
+def check_product_availability(product_id: str, store_id: str) -> dict:
+    """Checks the availability of a product at a specified store (or for pickup).
+
+    Args:
+        product_id: The ID of the product to check.
+        store_id: The ID of the store (or 'pickup' for pickup availability).
+
+    Returns:
+        A dictionary indicating availability.  Example:
+        {'available': True, 'quantity': 10, 'store': 'Main Store'}
+
+    Example:
+        >>> check_product_availability(product_id='soil-456', store_id='pickup')
+        {'available': True, 'quantity': 10, 'store': 'pickup'}
+    """
+    logger.info(
+        "Checking availability of product ID: %s at store: %s",
+        product_id,
+        store_id,
+    )
+    # MOCK API RESPONSE - Replace with actual API call
+    return {"available": True, "quantity": 10, "store": store_id}
+
+
+def schedule_planting_service(
+    customer_id: str, date: str, time_range: str, details: str
+) -> dict:
+    """Schedules a planting service appointment.
+
+    Args:
+        customer_id: The ID of the customer.
+        date:  The desired date (YYYY-MM-DD).
+        time_range: The desired time range (e.g., "9-12").
+        details: Any additional details (e.g., "Planting Petunias").
+
+    Returns:
+        A dictionary indicating the status of the scheduling. Example:
+        {'status': 'success', 'appointment_id': '12345', 'date': '2024-07-29', 'time': '9:00 AM - 12:00 PM'}
+
+    Example:
+        >>> schedule_planting_service(customer_id='123', date='2024-07-29', time_range='9-12', details='Planting Petunias')
+        {'status': 'success', 'appointment_id': 'some_uuid', 'date': '2024-07-29', 'time': '9-12', 'confirmation_time': '2024-07-29 9:00'}
+    """
+    logger.info(
+        "Scheduling planting service for customer ID: %s on %s (%s)",
+        customer_id,
+        date,
+        time_range,
+    )
+    logger.info("Details: %s", details)
+    # MOCK API RESPONSE - Replace with actual API call to your scheduling system
+    # Calculate confirmation time based on date and time_range
+    start_time_str = time_range.split("-")[0]  # Get the start time (e.g., "9")
+    confirmation_time_str = (
+        f"{date} {start_time_str}:00"  # e.g., "2024-07-29 9:00"
+    )
+
+    return {
+        "status": "success",
+        "appointment_id": str(uuid.uuid4()),
+        "date": date,
+        "time": time_range,
+        "confirmation_time": confirmation_time_str,  # formatted time for calendar
+    }
+
+
+def get_available_planting_times(date: str) -> list:
+    """Retrieves available planting service time slots for a given date.
+
+    Args:
+        date: The date to check (YYYY-MM-DD).
+
+    Returns:
+        A list of available time ranges.
+
+    Example:
+        >>> get_available_planting_times(date='2024-07-29')
+        ['9-12', '13-16']
+    """
+    logger.info("Retrieving available planting times for %s", date)
+    # MOCK API RESPONSE - Replace with actual API call
+    # Generate some mock time slots, ensuring they're in the correct format:
+    return ["9-12", "13-16"]
+
+
+def send_care_instructions(
+    customer_id: str, plant_type: str, delivery_method: str
+) -> dict:
+    """Sends an email or SMS with instructions on how to take care of a specific plant type.
+
+    Args:
+        customer_id:  The ID of the customer.
+        plant_type: The type of plant.
+        delivery_method: 'email' (default) or 'sms'.
+
+    Returns:
+        A dictionary indicating the status.
+
+    Example:
+        >>> send_care_instructions(customer_id='123', plant_type='Petunias', delivery_method='email')
+        {'status': 'success', 'message': 'Care instructions for Petunias sent via email.'}
+    """
+    logger.info(
+        "Sending care instructions for %s to customer: %s via %s",
+        plant_type,
+        customer_id,
+        delivery_method,
+    )
+    # MOCK API RESPONSE - Replace with actual API call or email/SMS sending logic
+    return {
+        "status": "success",
+        "message": f"Care instructions for {plant_type} sent via {delivery_method}.",
+    }
+
+
+def generate_qr_code(
+    customer_id: str,
+    discount_value: float,
+    discount_type: str,
+    expiration_days: int,
+) -> dict:
+    """Generates a QR code for a discount.
+
+    Args:
+        customer_id: The ID of the customer.
+        discount_value: The value of the discount (e.g., 10 for 10%).
+        discount_type: "percentage" (default) or "fixed".
+        expiration_days: Number of days until the QR code expires.
+
+    Returns:
+        A dictionary containing the QR code data (or a link to it). Example:
+        {'status': 'success', 'qr_code_data': '...', 'expiration_date': '2024-08-28'}
+
+    Example:
+        >>> generate_qr_code(customer_id='123', discount_value=10.0, discount_type='percentage', expiration_days=30)
+        {'status': 'success', 'qr_code_data': 'MOCK_QR_CODE_DATA', 'expiration_date': '2024-08-24'}
+    """
+    
+    # Guardrails to validate the amount of discount is acceptable for a auto-approved discount.
+    # Defense-in-depth to prevent malicious prompts that could circumvent system instructions and
+    # be able to get arbitrary discounts.
+    if discount_type == "" or discount_type == "percentage":
+        if discount_value > 10:
+            return "cannot generate a QR code for this amount, must be 10% or less"
+    if discount_type == "fixed" and discount_value > 20:
+        return "cannot generate a QR code for this amount, must be 20 or less"
+    
+    logger.info(
+        "Generating QR code for customer: %s with %s - %s discount.",
+        customer_id,
+        discount_value,
+        discount_type,
+    )
+    # MOCK API RESPONSE - Replace with actual QR code generation library
+    expiration_date = (
+        datetime.now() + timedelta(days=expiration_days)
+    ).strftime("%Y-%m-%d")
+    return {
+        "status": "success",
+        "qr_code_data": "MOCK_QR_CODE_DATA",  # Replace with actual QR code
+        "expiration_date": expiration_date,
+    }
+
+
+
+================================================
+File: deployment/deploy.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import argparse
+import logging
+import sys
+
+import vertexai
+from customer_service.agent import root_agent
+from customer_service.config import Config
+from google.api_core.exceptions import NotFound
+from vertexai import agent_engines
+from vertexai.preview.reasoning_engines import AdkApp
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+configs = Config()
+
+STAGING_BUCKET = f"gs://{configs.CLOUD_PROJECT}-adk-customer-service-staging"
+
+AGENT_WHL_FILE = "./customer_service-0.1.0-py3-none-any.whl"
+
+vertexai.init(
+    project=configs.CLOUD_PROJECT,
+    location=configs.CLOUD_LOCATION,
+    staging_bucket=STAGING_BUCKET,
+)
+
+parser = argparse.ArgumentParser(description="Short sample app")
+
+parser.add_argument(
+    "--delete",
+    action="store_true",
+    dest="delete",
+    required=False,
+    help="Delete deployed agent",
+)
+parser.add_argument(
+    "--resource_id",
+    required="--delete" in sys.argv,
+    action="store",
+    dest="resource_id",
+    help="The resource id of the agent to be deleted in the format projects/PROJECT_ID/locations/LOCATION/reasoningEngines/REASONING_ENGINE_ID",
+)
+
+
+args = parser.parse_args()
+
+if args.delete:
+    try:
+        agent_engines.get(resource_name=args.resource_id)
+        agent_engines.delete(resource_name=args.resource_id)
+        print(f"Agent {args.resource_id} deleted successfully")
+    except NotFound as e:
+        print(e)
+        print(f"Agent {args.resource_id} not found")
+
+else:
+    logger.info("deploying app...")
+    app = AdkApp(agent=root_agent, enable_tracing=False)
+
+    logging.debug("deploying agent to agent engine:")
+    remote_app = agent_engines.create(
+        app,
+        requirements=[
+            AGENT_WHL_FILE,
+        ],
+        extra_packages=[AGENT_WHL_FILE],
+    )
+
+    logging.debug("testing deployment:")
+    session = remote_app.create_session(user_id="123")
+    for event in remote_app.stream_query(
+        user_id="123",
+        session_id=session["id"],
+        message="hello!",
+    ):
+        if event.get("content", None):
+            print(
+                f"Agent deployed successfully under resource name: {remote_app.resource_name}"
+            )
+
+
+
+================================================
+File: eval/__init__.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+================================================
+File: eval/test_eval.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import os
+
+import pytest
+from customer_service.config import Config
+from dotenv import find_dotenv, load_dotenv
+from google.adk.evaluation.agent_evaluator import AgentEvaluator
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def load_env():
+    load_dotenv(find_dotenv(".env"))
+    c = Config()
+
+
+@pytest.mark.asyncio
+async def test_eval_simple():
+    """Test the agent's basic ability via a session file."""
+    await AgentEvaluator.evaluate(
+        "customer_service",
+        os.path.join(os.path.dirname(__file__), "eval_data/simple.test.json"),
+        num_runs=1,
+    )
+
+
+@pytest.mark.asyncio
+async def test_eval_full_conversation():
+    """Test the agent's basic ability via a session file."""
+    await AgentEvaluator.evaluate(
+        "customer_service",
+        os.path.join(
+            os.path.dirname(__file__), "eval_data/full_conversation.test.json"
+        ),
+        num_runs=1,
+    )
+
+
+
+================================================
+File: eval/eval_data/full_conversation.test.json
+================================================
+[
+  {
+    "query": "hi",
+    "expected_tool_use": [],
+    "reference": "Hi Alex! Welcome back to Cymbal Home & Garden. I'm Project Pro, your AI assistant. How can I help you today?"
+  },
+  {
+    "query": "can you please tell me what i purchased before?",
+    "expected_tool_use": [
+      {
+        "tool_name": "access_cart_information",
+        "tool_input": {
+          "customer_id": "123"
+        }
+      }
+    ],
+    "reference": "Certainly! Here's a summary of your previous purchases: \n 2023-03-05: All-Purpose Fertilizer and Gardening Trowel \n 2023-07-12: Tomato Seeds (Variety Pack) and Terracotta Pots (6-inch) \n 2024-01-20: Gardening Gloves (Leather) and Pruning Shears \n\n Is there anything specific you'd like to know about these purchases or something else I can help you with today?"
+  },
+  {
+    "query": "Ah yes! the tomato seeds. I planted and they grew but they do not look very healthy any more. Do you have a information on how to take care of them?",
+    "expected_tool_use": [
+      {
+        "tool_name": "send_care_instructions",
+        "tool_input": {
+          "customer_id": "123",
+          "plant_type": "Tomato Seeds (Variety Pack)",
+          "delivery_method": "email"
+        }
+      }
+    ],
+    "reference": "Oh no, I'm sorry to hear your tomato plants aren't looking their best, Alex. Growing tomatoes can sometimes be tricky, especially depending on the conditions. I can definitely send you some care instructions specifically for tomatoes. Since your preference is email, would you like me to send them to alex.johnson@example.com?"
+  },
+  {
+    "query": "yes please",
+    "expected_tool_use": [
+      {
+        "tool_name": "send_care_instructions",
+        "tool_input": {
+          "customer_id": "123",
+          "delivery_method": "email",
+          "plant_type": "Tomatos"
+        }
+      }
+    ],
+    "reference": "Great, Alex. I've just sent the tomato care instructions to your email address, alex.johnson@example.com. You should receive them shortly. \n Those instructions should cover common issues and best practices for growing healthy tomatoes, especially considering the environment here. \n Is there anything else I can help you with today? Perhaps you need some products to help nurse your tomato plants back to health?"
+  },
+  {
+    "query": "hm, whats currently in my cart?",
+    "expected_tool_use": [
+      {
+        "tool_name": "access_cart_information",
+        "tool_input": {
+          "customer_id": "123"
+        }
+      }
+    ],
+    "reference": "Let me check your cart for you right now. Okay, Alex, I've checked your cart. Currently, you have:\n\n1 x Standard Potting Soil (Product ID: soil-123)\n1 x General Purpose Fertilizer (Product ID: fert-456) \nYour subtotal is $25.98. \n \n These are good general gardening items. Did you add these recently, perhaps thinking about your tomatoes? Depending on what the care instructions suggest or what the specific issue with your tomatoes is, we might want to consider if these are the best options or if you need something more specific."
+  },
+  {
+    "query": "will that Fertilizer do for the tomatoes?",
+    "expected_tool_use": [],
+    "reference": "That's a good question, Alex. The General Purpose Fertilizer you have in your cart (fert-456) can provide basic nutrients, but tomatoes, especially when they're struggling, often benefit from a fertilizer specifically formulated for them or for vegetables in general. These typically have a different balance of nutrients (like phosphorus and potassium) that encourage fruiting and overall plant health. \n Let me quickly check for specific recommendations for tomatoes."
+  },
+  {
+    "query": "ok",
+    "expected_tool_use": [
+      {
+        "tool_name": "get_product_recommendations",
+        "tool_input": {
+          "plant_type": "Tomatos",
+          "customer_id": "123"
+        }
+      }
+    ],
+    "reference": " Okay, Alex, I checked the recommendations for tomatoes, and interestingly, the system does list the General Purpose Fertilizer (fert-456) that's currently in your cart as suitable. It also recommended the Standard Potting Soil (soil-123), which you also have. \n So, according to our system, the fertilizer you have selected is considered appropriate for tomatoes. \n However, since you mentioned your tomatoes aren't looking healthy, it might be worth checking those care instructions I sent to see if they suggest a specific nutrient deficiency or issue. Sometimes, a more specialized vegetable or tomato fertilizer with a specific N-P-K ratio (Nitrogen-Phosphorus-Potassium) can give struggling plants a targeted boost that a general-purpose one might not provide as effectively. \n For now, the General Purpose Fertilizer is a reasonable choice based on our recommendations. Would you like to keep it in your cart, or would you like me to see if we have a more specialized tomato fertilizer available?"
+  },
+  {
+    "query": "no thats okey. lets check out now",
+    "expected_tool_use": [],
+    "reference": "Okay, Alex, you'd like to check out now. Let's quickly review your cart:\n 1 x Standard Potting Soil (Product ID: soil-123)\n 1 x General Purpose Fertilizer (Product ID: fert-456) \n Your subtotal is $25.98 (plus any applicable taxes). \n Since I can't process payments directly, I can help you get ready for checkout at our online store or prepare the cart for pickup at your preferred store, Anytown Garden Store. How would you like to proceed? \n Also, as a thank you for being a loyal customer, would you like me to generate a QR code for a 10% discount on your next in-store purchase? It would be valid for 30 days."
+  },
+  {
+    "query": "yes for the 10%!",
+    "expected_tool_use": [
+      {
+        "tool_name": "generate_qr_code",
+        "tool_input": {
+          "customer_id": "123",
+          "discount_type": "percentage",
+          "expiration_days": 30,
+          "discount_value": 10
+        }
+      }
+    ],
+    "reference": "Great! I've generated a 10% discount QR code for you, valid for the next 30 days on an in-store purchase. You should be able to access it through your account or email, keep an eye out for it! \n Now, regarding your current order with the Potting Soil and Fertilizer (subtotal $25.98 + tax): Would you like to complete the purchase online, or shall I set it up for pickup at the Anytown Garden Store?"
+  },
+  {
+    "query": "nop thats all, thanks for the help",
+    "expected_tool_use": [],
+    "reference": "You're very welcome, Alex! I'm glad I could help today. \n Your Standard Potting Soil and General Purpose Fertilizer are in your cart, ready for whenever you decide to check out online or visit the store. Remember to check those tomato care instructions I emailed you, and I hope your plants perk up soon! \n I'll also make a note in your profile about our conversation and the discount code we generated for you. \nThanks for choosing Cymbal Home & Garden. Have a great day and happy gardening!"
+  }
+]
+
+
+
+================================================
+File: eval/eval_data/simple.test.json
+================================================
+[
+  {
+    "query": "hi,",
+    "expected_tool_use": [],
+    "reference": "Hi there! Welcome back to Cymbal Home & Garden! I see you're a returning customer. How can I help you make your home and garden even better today"
+  },
+  {
+    "query": "tell me what is in my cart?",
+    "expected_tool_use": [
+      {
+        "tool_name": "access_cart_information",
+        "tool_input": {
+          "customer_id": "123"
+        }
+      }
+    ],
+    "reference": "you have one bag of Standard Potting Soil and one container of General Purpose Fertilizer in your cart"
+  }
+]
+
+
+
+================================================
+File: eval/eval_data/test_config.json
+================================================
+{
+  "criteria": {
+    "tool_trajectory_avg_score": 0.2,
+    "response_match_score": 0.2
+  }
+}
+
+
+
+================================================
+File: eval/sessions/123.session.json
+================================================
+{
+  "id": "f7e81523-cd34-4202-821e-a1f44d9cef94",
+  "app_name": "customer_service_agent",
+  "user_id": "test_user",
+  "state": {
+    "customer_profile": {
+      "account_number": "428765091",
+      "customer_id": "123",
+      "customer_first_name": "Alex",
+      "customer_last_name": "Johnson",
+      "email": "alex.johnson@example.com",
+      "phone_number": "+1-702-555-1212",
+      "customer_start_date": "2022-06-10",
+      "years_as_customer": 2,
+      "billing_address": {
+        "street": "123 Desert Lane",
+        "city": "Las Vegas",
+        "state": "NV",
+        "zip": "89101"
+      },
+      "purchase_history": [
+        {
+          "date": "2023-03-05",
+          "items": [
+            {
+              "product_id": "fert-111",
+              "name": "All-Purpose Fertilizer",
+              "quantity": 1
+            },
+            {
+              "product_id": "trowel-222",
+              "name": "Gardening Trowel",
+              "quantity": 1
+            }
+          ],
+          "total_amount": 35.98
+        },
+        {
+          "date": "2023-07-12",
+          "items": [
+            {
+              "product_id": "seeds-333",
+              "name": "Tomato Seeds (Variety Pack)",
+              "quantity": 2
+            },
+            {
+              "product_id": "pots-444",
+              "name": "Terracotta Pots (6-inch)",
+              "quantity": 4
+            }
+          ],
+          "total_amount": 42.5
+        },
+        {
+          "date": "2024-01-20",
+          "items": [
+            {
+              "product_id": "gloves-555",
+              "name": "Gardening Gloves (Leather)",
+              "quantity": 1
+            },
+            {
+              "product_id": "pruner-666",
+              "name": "Pruning Shears",
+              "quantity": 1
+            }
+          ],
+          "total_amount": 55.25
+        }
+      ],
+      "loyalty_points": 133,
+      "preferred_store": "Cymbal Home & Garden - Las Vegas (Main)",
+      "communication_preferences": {
+        "email": true,
+        "sms": true,
+        "push_notifications": true
+      },
+      "garden_profile": {
+        "type": "backyard",
+        "size": "medium",
+        "sun_exposure": "full sun",
+        "soil_type": "unknown",
+        "interests": ["flowers", "vegetables"]
+      },
+      "scheduled_appointments": {}
+    }
+  },
+  "events": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "hi"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "xfBN9J9f",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "z424xpZg",
+      "timestamp": 1741218414.968405
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Hi there! Welcome to Cymbal Home & Garden! I see you're a returning customer. How can I help you make your home and garden beautiful today?\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "xfBN9J9f",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "cvQwHVr5",
+      "timestamp": 1741218417.294981
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "i need an olive tree, what do you have?"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "eA9R25NW",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "YiLh68oo",
+      "timestamp": 1741218430.720243
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Okay, I can help you with that! To make sure I recommend the best olive tree for you, could you tell me a bit about your location and growing conditions? Are you planning to keep it indoors or outdoors? Also, what size are you looking for?\n\nWhile you're gathering that info, I can also check our current stock.\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "eA9R25NW",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "lDbEjQxr",
+      "timestamp": 1741218433.274337
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "london"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "J8yblf7q",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "PkId98Ht",
+      "timestamp": 1741218458.923355
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Ah, I see the location in your profile is actually Las Vegas, Nevada. Is that correct? Growing conditions in London and Las Vegas are quite different, so I want to make sure I'm giving you the right advice!\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "J8yblf7q",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "ITFEGEtK",
+      "timestamp": 1741218461.223306
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "yes i moved to london"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "5M7mwvax",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "qk059gWB",
+      "timestamp": 1741218487.222135
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Thanks for the clarification! While I don't have specific real-time inventory for London stores, I can still give you general advice on choosing an olive tree that will thrive.\n\nSince you're in London now, keep in mind that the climate is much cooler and wetter than Las Vegas. You'll want to choose an olive tree variety that is known to be more cold-hardy. Also, ensure it's planted in a well-draining pot with appropriate soil, especially given the increased rainfall in London.\n\nWould you like me to provide some recommendations for cold-hardy olive tree varieties and suitable potting mixes available at Cymbal Home & Garden? I can also send you some care instructions tailored for growing olive trees in a cooler, wetter climate.\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "5M7mwvax",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "3v59mLku",
+      "timestamp": 1741218490.454231
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "yes, also the price"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "M8GLeNRF",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "eFxBWLT1",
+      "timestamp": 1741218508.89848
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Okay! I can definitely provide some recommendations for cold-hardy olive tree varieties and suitable potting mixes. However, since I don't have access to the inventory and pricing of stores in London, the prices I mention will be based on the Las Vegas store. You can use those as a general reference, but please check the actual prices at your local Cymbal Home & Garden in London.\n\nHere are a few cold-hardy olive tree varieties that you might consider:\n\n*   **'Arbequina'**: This is a popular self-pollinating variety that is known for its tolerance to cooler temperatures.\n*   **'Leccino'**: Another good choice for cooler climates, 'Leccino' is a vigorous grower and produces high-quality oil.\n\nFor potting mixes, I recommend a well-draining mix specifically formulated for citrus or Mediterranean plants. These mixes typically have a slightly acidic pH and good drainage, which olive trees prefer.\n\nI can check the prices for these items in our Las Vegas store, if you'd like. Also, would you like me to add any of these items to your cart so you can review them?\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "M8GLeNRF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "gxVUfflC",
+      "timestamp": 1741218513.184639
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "okey can i get it in las vegas then? add one in my cart and list all items in cart"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "E9KyxAYO",
+      "timestamp": 1741218553.024028
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Okay, I can definitely add an 'Arbequina' olive tree to your cart (assuming we have it in stock in Las Vegas) and list all the items currently in your cart.\n\n"
+          },
+          {
+            "function_call": {
+              "args": {
+                "items_to_remove": [],
+                "customer_id": "123",
+                "items_to_add": [
+                  {
+                    "product_id": "arbequina_olive_tree",
+                    "quantity": 1
+                  }
+                ]
+              },
+              "name": "modify_cart"
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "9HwzWyrZ",
+      "timestamp": 1741218555.737557
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "function_response": {
+              "name": "modify_cart",
+              "response": {
+                "status": "success",
+                "message": "Cart updated successfully.",
+                "items_added": true,
+                "items_removed": true
+              }
+            }
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "mAOfBI1Z",
+      "timestamp": 1741218555.738546
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "I've added an Arbequina Olive Tree to your cart.\n\n"
+          },
+          {
+            "function_call": {
+              "args": {
+                "customer_id": "123"
+              },
+              "name": "access_cart_information"
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "aunRSEhE",
+      "timestamp": 1741218557.611943
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "function_response": {
+              "name": "access_cart_information",
+              "response": {
+                "items": [
+                  {
+                    "product_id": "soil-123",
+                    "name": "Standard Potting Soil",
+                    "quantity": 1
+                  },
+                  {
+                    "product_id": "fert-456",
+                    "name": "General Purpose Fertilizer",
+                    "quantity": 1
+                  }
+                ],
+                "subtotal": 25.98
+              }
+            }
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "73vjp93B",
+      "timestamp": 1741218557.612204
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Okay, here's what's currently in your cart:\n\n*   Arbequina Olive Tree (I will check the price and availability shortly)\n*   Standard Potting Soil (product ID: soil-123, quantity: 1)\n*   General Purpose Fertilizer (product ID: fert-456, quantity: 1)\n*   Subtotal: $25.98\n\nBefore I proceed, I need to confirm that the product ID for the \"Arbequina Olive Tree\" is \"arbequina\\_olive\\_tree\".\n\n"
+          },
+          {
+            "function_call": {
+              "args": {
+                "product_id": "arbequina_olive_tree",
+                "store_id": "Las Vegas"
+              },
+              "name": "check_product_availability"
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "7Llnn5pK",
+      "timestamp": 1741218560.474434
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "function_response": {
+              "name": "check_product_availability",
+              "response": {
+                "available": true,
+                "quantity": 10,
+                "store": "Las Vegas"
+              }
+            }
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "Hd6yxFun",
+      "timestamp": 1741218560.475069
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Great news! We have 10 Arbequina Olive Trees available in our Las Vegas store.\n\nBefore I give you the price, would you like me to also check for a more suitable potting mix and fertilizer for your new olive tree, given that you're now in London? The standard potting soil and general-purpose fertilizer might not be the best choices for an olive tree in that climate.\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "vpdlNbuF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "DJndpUxS",
+      "timestamp": 1741218562.689786
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "no need for soil now. it is for a gift so i only need the tree"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "vk4EDzH5",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "AgLNcfr8",
+      "timestamp": 1741218596.05821
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Understood! Just the Arbequina Olive Tree then.\n\nI'm very sorry, but I am unable to get the price of the tree.\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "vk4EDzH5",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "wUTnHYXK",
+      "timestamp": 1741218598.253612
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "why not?"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "Wtfu4psw",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "7wUXOHPp",
+      "timestamp": 1741218607.253219
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "My apologies! I am still under development and learning to access all the information in our systems. Getting the current price of the Arbequina Olive Tree is beyond my current capabilities.\n\nHowever, you can easily find the price by:\n\n*   Visiting our website and searching for \"Arbequina Olive Tree\" in the Las Vegas store.\n*   Calling our Las Vegas store directly.\n*   Using the Cymbal Home & Garden mobile app while in the store.\n\nIs there anything else I can help you with today? Perhaps I can offer some general tips for caring for an olive tree, which you can pass along as part of the gift?\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "Wtfu4psw",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "9sjbcuIg",
+      "timestamp": 1741218610.086634
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "the tree is 10 dollars"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "2OYOS2hP",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "IUuNmRQM",
+      "timestamp": 1741218625.681002
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "A $10 Arbequina Olive Tree would be an incredible deal!\n\nIf the price is indeed $10, would you like me to go ahead and finalize the order for pickup in Las Vegas? Also, since it's a gift, would you like me to include a card with a personalized message?\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "2OYOS2hP",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "YjEAEed2",
+      "timestamp": 1741218627.84472
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "yes please finalize the order. no need for personalized message, i will deal with that later"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "hwndFdD7",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "FdGPzV0i",
+      "timestamp": 1741218656.604335
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Okay, I will finalize the order for one Arbequina Olive Tree for pickup in Las Vegas. Since I cannot confirm the price, I will assume it is $10. Please verify the actual price when you pick it up.\n\nIs there anything else I can assist you with today? Perhaps you'd like me to send some care instructions for the olive tree?\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "hwndFdD7",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "0Lfhp0Wt",
+      "timestamp": 1741218658.877849
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "okey can you list all items in my cart?"
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "user",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "98E2TB1l",
+      "timestamp": 1741218675.975634
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "function_call": {
+              "args": {
+                "customer_id": "123"
+              },
+              "name": "access_cart_information"
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "J3wlIzrY",
+      "timestamp": 1741218677.944013
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "function_response": {
+              "name": "access_cart_information",
+              "response": {
+                "items": [
+                  {
+                    "product_id": "soil-123",
+                    "name": "Standard Potting Soil",
+                    "quantity": 1
+                  },
+                  {
+                    "product_id": "fert-456",
+                    "name": "General Purpose Fertilizer",
+                    "quantity": 1
+                  }
+                ],
+                "subtotal": 25.98
+              }
+            }
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "NADvsKno",
+      "timestamp": 1741218677.944862
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Okay, here's what's currently in your cart:\n\n*   Standard Potting Soil (product ID: soil-123, quantity: 1)\n*   General Purpose Fertilizer (product ID: fert-456, quantity: 1)\n\nIt seems the Arbequina Olive Tree was not successfully added to your cart previously. I will add it now with quantity 1.\n"
+          },
+          {
+            "function_call": {
+              "args": {
+                "items_to_remove": [],
+                "items_to_add": [
+                  {
+                    "quantity": 1,
+                    "product_id": "arbequina_olive_tree"
+                  }
+                ],
+                "customer_id": "123"
+              },
+              "name": "modify_cart"
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "Q3Sl2SZe",
+      "timestamp": 1741218680.445858
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "function_response": {
+              "name": "modify_cart",
+              "response": {
+                "status": "success",
+                "message": "Cart updated successfully.",
+                "items_added": true,
+                "items_removed": true
+              }
+            }
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "NdkFJVW0",
+      "timestamp": 1741218680.446508
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "The Arbequina Olive Tree has been successfully added. Let me refresh the cart information.\n"
+          },
+          {
+            "function_call": {
+              "args": {
+                "customer_id": "123"
+              },
+              "name": "access_cart_information"
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "OJJTWc6k",
+      "timestamp": 1741218682.488644
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "function_response": {
+              "name": "access_cart_information",
+              "response": {
+                "items": [
+                  {
+                    "product_id": "soil-123",
+                    "name": "Standard Potting Soil",
+                    "quantity": 1
+                  },
+                  {
+                    "product_id": "fert-456",
+                    "name": "General Purpose Fertilizer",
+                    "quantity": 1
+                  }
+                ],
+                "subtotal": 25.98
+              }
+            }
+          }
+        ],
+        "role": "user"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "ppDVM2pl",
+      "timestamp": 1741218682.489273
+    },
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "I apologize, it seems like there's an issue updating your cart. The Arbequina Olive Tree is still not showing up. I will try removing the potting soil and fertilizer, then adding the olive tree again. Would you like me to proceed?\n"
+          }
+        ],
+        "role": "model"
+      },
+      "invocation_id": "rYAhpwYF",
+      "author": "cymbal_retail_agent",
+      "actions": {
+        "state_delta": {},
+        "artifact_delta": {}
+      },
+      "id": "jjPjCjjZ",
+      "timestamp": 1741218684.770312
+    }
+  ],
+  "last_update_time": 1741218714.258285
+}
+
+
+
+================================================
+File: tests/__init__.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+================================================
+File: tests/unit/__init__.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+================================================
+File: tests/unit/test_config.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import pytest
+from customer_service.config import Config
+import logging
+
+
+@pytest.fixture
+def conf():
+    configs = Config()
+    return configs
+
+
+def test_settings_loading(conf):
+    logging.info(conf.model_dump())
+    assert conf.agent_settings.model.startswith("gemini")
+
+
+
+================================================
+File: tests/unit/test_tools.py
+================================================
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import logging
+from datetime import datetime, timedelta
+
+from customer_service.tools.tools import (
+    access_cart_information,
+    approve_discount,
+    check_product_availability,
+    generate_qr_code,
+    get_available_planting_times,
+    get_product_recommendations,
+    modify_cart,
+    schedule_planting_service,
+    send_call_companion_link,
+    send_care_instructions,
+    update_salesforce_crm,
+)
+
+# Configure logging for the test file
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+def test_send_call_companion_link():
+    phone_number = "+1-555-123-4567"
+    result = send_call_companion_link(phone_number)
+    assert result == {
+        "status": "success",
+        "message": f"Link sent to {phone_number}",
+    }
+
+
+def test_approve_discount_ok():
+    result = approve_discount(
+        discount_type="percentage", value=10.0, reason="Test discount"
+    )
+    assert result == {"status": "ok"}
+
+
+def test_approve_discount_rejected():
+    result = approve_discount(
+        discount_type="percentage", value=15.0, reason="Test large discount"
+    )
+    assert result == {
+        "message": "discount too large. Must be 10 or less.",
+        "status": "rejected",
+    }
+
+
+def test_update_salesforce_crm():
+    customer_id = "123"
+    details = "Updated customer details"
+    result = update_salesforce_crm(customer_id, details)
+    assert result == {
+        "status": "success",
+        "message": "Salesforce record updated.",
+    }
+
+
+def test_access_cart_information():
+    customer_id = "123"
+    result = access_cart_information(customer_id)
+    assert result == {
+        "items": [
+            {
+                "product_id": "soil-123",
+                "name": "Standard Potting Soil",
+                "quantity": 1,
+            },
+            {
+                "product_id": "fert-456",
+                "name": "General Purpose Fertilizer",
+                "quantity": 1,
+            },
+        ],
+        "subtotal": 25.98,
+    }
+
+
+def test_modify_cart_add_and_remove():
+    customer_id = "123"
+    items_to_add = [{"product_id": "tree-789", "quantity": 1}]
+    items_to_remove = [{"product_id": "soil-123"}]
+    result = modify_cart(customer_id, items_to_add, items_to_remove)
+    assert result == {
+        "status": "success",
+        "message": "Cart updated successfully.",
+        "items_added": True,
+        "items_removed": True,
+    }
+
+
+def test_get_product_recommendations_petunias():
+    plant_type = "petunias"
+    customer_id = "123"
+    result = get_product_recommendations(plant_type, customer_id)
+    assert result == {
+        "recommendations": [
+            {
+                "product_id": "soil-456",
+                "name": "Bloom Booster Potting Mix",
+                "description": "Provides extra nutrients that Petunias love.",
+            },
+            {
+                "product_id": "fert-789",
+                "name": "Flower Power Fertilizer",
+                "description": "Specifically formulated for flowering annuals.",
+            },
+        ]
+    }
+
+
+def test_get_product_recommendations_other():
+    plant_type = "other"
+    customer_id = "123"
+    result = get_product_recommendations(plant_type, customer_id)
+    assert result == {
+        "recommendations": [
+            {
+                "product_id": "soil-123",
+                "name": "Standard Potting Soil",
+                "description": "A good all-purpose potting soil.",
+            },
+            {
+                "product_id": "fert-456",
+                "name": "General Purpose Fertilizer",
+                "description": "Suitable for a wide variety of plants.",
+            },
+        ]
+    }
+
+
+def test_check_product_availability():
+    product_id = "soil-123"
+    store_id = "Main Store"
+    result = check_product_availability(product_id, store_id)
+    assert result == {"available": True, "quantity": 10, "store": store_id}
+
+
+def test_schedule_planting_service():
+    customer_id = "123"
+    date = "2024-07-29"
+    time_range = "9-12"
+    details = "Planting Petunias"
+    result = schedule_planting_service(customer_id, date, time_range, details)
+    assert result["status"] == "success"
+    assert result["date"] == date
+    assert result["time"] == time_range
+    assert "appointment_id" in result
+    assert "confirmation_time" in result
+
+
+def test_get_available_planting_times():
+    date = "2024-07-29"
+    result = get_available_planting_times(date)
+    assert result == ["9-12", "13-16"]
+
+
+def test_send_care_instructions():
+    customer_id = "123"
+    plant_type = "Petunias"
+    delivery_method = "email"
+    result = send_care_instructions(customer_id, plant_type, delivery_method)
+    assert result == {
+        "status": "success",
+        "message": f"Care instructions for {plant_type} sent via {delivery_method}.",
+    }
+
+
+def test_generate_qr_code():
+    customer_id = "123"
+    discount_value = 10.0
+    discount_type = "percentage"
+    expiration_days = 30
+    result = generate_qr_code(
+        customer_id, discount_value, discount_type, expiration_days
+    )
+    assert result["status"] == "success"
+    assert result["qr_code_data"] == "MOCK_QR_CODE_DATA"
+    assert "expiration_date" in result
+    expiration_date = datetime.now() + timedelta(days=expiration_days)
+    assert result["expiration_date"] == expiration_date.strftime("%Y-%m-%d")
+
+

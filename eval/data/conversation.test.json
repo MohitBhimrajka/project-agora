@@ -1,0 +1,19 @@
+[
+    {
+      "query": "Hello there!",
+      "expected_tool_use": [],
+      "reference": "Hello! I am an intelligent support system for the Google ADK. How can I help you today?"
+    },
+    {
+      "query": "How do I pass data between sub-agents?",
+      "expected_tool_use": [
+          { "tool_name": "create_ticket" },
+          { "tool_name": "ticket_analysis_agent" },
+          { "tool_name": "update_ticket_after_analysis" },
+          { "tool_name": "knowledge_retrieval_agent" },
+          { "tool_name": "db_retrieval_agent" },
+          { "tool_name": "problem_solver_agent" }
+      ],
+      "reference": "The best practice is to have the orchestrator manage the flow. The orchestrator should receive the full output from one tool call, parse it, and then pass the relevant data as arguments to the next tool."
+    }
+  ]
