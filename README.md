@@ -1,12 +1,12 @@
-# ADK-Copilot
+# Adk_copilot
 
-An intelligent AI copilot and expert assistant for developers using the Google Agent Development Kit (ADK). Built with a sophisticated multi-agent architecture, ADK-Copilot helps developers solve problems, generate code, and navigate the complexities of building applications with the Google ADK.
+An intelligent AI copilot and expert assistant for developers using the Google Agent Development Kit (ADK). Built with a sophisticated multi-agent architecture, Adk_copilot helps developers solve problems, generate code, and navigate the complexities of building applications with the Google ADK.
 
   <!-- It's highly recommended to create and upload an architecture diagram -->
 
 ## Overview
 
-ADK-Copilot is designed specifically for developers working with the Google Agent Development Kit. It combines the power of multiple specialized AI agents to provide comprehensive assistance—from troubleshooting deployment issues to generating complete, production-ready code examples. Whether you're stuck on a technical problem or need help building a new agent, ADK-Copilot is your intelligent pair programming partner.
+Adk_copilot is designed specifically for developers working with the Google Agent Development Kit. It combines the power of multiple specialized AI agents to provide comprehensive assistance—from troubleshooting deployment issues to generating complete, production-ready code examples. Whether you're stuck on a technical problem or need help building a new agent, Adk_copilot is your intelligent pair programming partner.
 
 ### Key Features
 
@@ -57,7 +57,7 @@ Now, edit the newly created `.env` file with your specific Google Cloud project 
 GOOGLE_GENAI_USE_VERTEXAI=1
 GOOGLE_CLOUD_PROJECT=your-gcp-project-id
 GOOGLE_CLOUD_LOCATION=us-central1
-GOOGLE_CLOUD_STORAGE_BUCKET=your-gcp-project-id-adk-copilot
+GOOGLE_CLOUD_STORAGE_BUCKET=your-gcp-project-id
 RAG_CORPUS_NAME="" # This will be auto-populated by the setup script
 BQ_PROJECT_ID=your-gcp-project-id
 BQ_DATASET_ID=adk_copilot_dataset

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from google.api_core.exceptions import NotFound
 
 # Correctly import AdkApp and use agent_engines
-from adk-copilot.agent import root_agent
+from adk_copilot.agent import root_agent
 from vertexai import agent_engines
 from vertexai.preview.reasoning_engines import AdkApp
 
