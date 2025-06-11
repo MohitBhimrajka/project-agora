@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "intelligent-support-triage"
+name = "adk-copilot"
 version = "0.1.0"
-description = "An intelligent multi-agent system for triaging customer support tickets."
+description = "An AI copilot and expert assistant for developers using the Google Agent Development Kit (ADK)."
 authors = ["Mohit Bhimrajka <mohitbhimrajka5@gmail.com>"]
 license = "Apache-2.0"
 readme = "README.md"

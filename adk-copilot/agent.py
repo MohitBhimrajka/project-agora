@@ -1,4 +1,4 @@
-# FILE: intelligent_support_triage/agent.py
+# FILE: adk_copilot/agent.py
 
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool

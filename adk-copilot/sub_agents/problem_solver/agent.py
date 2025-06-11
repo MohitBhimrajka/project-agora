@@ -1,4 +1,4 @@
-# FILE: intelligent_support_triage/sub_agents/problem_solver/agent.py
+# FILE: adk_copilot/sub_agents/problem_solver/agent.py
 
 from google.adk.agents import LlmAgent
 

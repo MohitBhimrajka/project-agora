@@ -1,4 +1,4 @@
-# FILE: intelligent_support_triage/tools/tools.py
+# FILE: adk_copilot/tools/tools.py
 
 import os
 import json
@@ -13,41 +13,41 @@ def _get_similarity(a: str, b: str) -> float:
 
 def create_ticket(request: str, tool_context: ToolContext) -> str:
     """
-    Creates a new support ticket and initializes the workflow state.
-    This should be the very first tool called for any new support request.
+    Creates a new developer request and initializes the workflow state.
+    This should be the very first tool called for any new developer request.
     
     Args:
-        request: The user's original, verbatim support request.
+        request: The user's original, verbatim developer request.
         tool_context: The context object provided by the ADK framework.
 
     Returns:
-        A JSON string representing the newly created ticket.
+        A JSON string representing the newly created request.
     """
     ticket = SupportTicket(
         ticket_id="TICK-DEMO-001",
-        customer_id="CUST-DEMO-123",
+        customer_id="DEV-DEMO-123",
         request=request,
         status="New"  # The initial status
     )
     
-    # Save the new ticket to the session state
+    # Save the new request to the session state
     ticket_json = ticket.to_json()
     tool_context.state["ticket"] = ticket_json
     
-    print("INFO: New ticket created via tool and state initialized.")
+    print("INFO: New developer request created via tool and state initialized.")
     return ticket_json
 
 
 def search_resolved_tickets_db(query: str) -> str:
     """
-    Searches the BigQuery database of resolved tickets for entries matching a query.
-    Only returns tickets with a high similarity score to the query.
+    Searches the BigQuery database of resolved developer requests for entries matching a query.
+    Only returns requests with a high similarity score to the query.
 
     Args:
-        query: A string containing keywords to search for in past ticket requests.
+        query: A string containing keywords to search for in past developer requests.
 
     Returns:
-        A string representation of a list of matching tickets, or an empty list if none are found.
+        A string representation of a list of matching requests, or an empty list if none are found.
     """
     bq_project_id = os.getenv("BQ_PROJECT_ID")
     bq_dataset_id = os.getenv("BQ_DATASET_ID")
@@ -85,23 +85,23 @@ def search_resolved_tickets_db(query: str) -> str:
         all_results = [dict(row) for row in query_job.result()]
         
         # Filter results based on a similarity threshold
-        highly_relevant_tickets = []
-        for ticket in all_results:
+        highly_relevant_requests = []
+        for request in all_results:
             # Check similarity against both the request and solution for relevance
-            request_similarity = _get_similarity(query, ticket.get("request", ""))
-            solution_similarity = _get_similarity(query, ticket.get("suggested_solution", ""))
+            request_similarity = _get_similarity(query, request.get("request", ""))
+            solution_similarity = _get_similarity(query, request.get("suggested_solution", ""))
             
             # Use the higher of the two scores
             confidence = max(request_similarity, solution_similarity)
             
             # Only include if confidence is high enough (e.g., > 40%)
             if confidence > 0.4:
-                highly_relevant_tickets.append(ticket)
+                highly_relevant_requests.append(request)
         
-        if not highly_relevant_tickets:
+        if not highly_relevant_requests:
             return "[]" 
 
-        return str(highly_relevant_tickets)
+        return str(highly_relevant_requests)
 
     except Exception as e:
         print(f"ERROR: BigQuery search failed: {e}")
@@ -109,8 +109,8 @@ def search_resolved_tickets_db(query: str) -> str:
 
 def update_ticket_after_analysis(analysis_json: str, tool_context: ToolContext) -> str:
     """
-    Parses the analysis JSON, updates the main ticket object in the state
-    with the analysis details, and sets the ticket status to 'Analyzing'.
+    Parses the analysis JSON, updates the main request object in the state
+    with the analysis details, and sets the request status to 'Analyzing'.
     This tool should be called immediately after the ticket_analysis_agent runs.
 
     Args:
@@ -118,33 +118,33 @@ def update_ticket_after_analysis(analysis_json: str, tool_context: ToolContext) 
         tool_context: The context object to access and modify the state.
 
     Returns:
-        The updated ticket as a JSON string, or an error message.
+        The updated request as a JSON string, or an error message.
     """
     try:
         # 1. Clean up the JSON string from markdown fences
         if analysis_json.strip().startswith("```json"):
             analysis_json = analysis_json.strip()[7:-4].strip()
 
-        # 2. Load current ticket from state
+        # 2. Load current request from state
         ticket_dict = json.loads(tool_context.state.get("ticket", "{}"))
         if not ticket_dict:
-            return "Error: Ticket not found in state."
+            return "Error: Request not found in state."
 
         # 3. Parse the new analysis data
         analysis_data = json.loads(analysis_json)
         
-        # 4. Update the ticket object
+        # 4. Update the request object
         ticket_dict["analysis"] = TicketAnalysis(**analysis_data).model_dump()
         ticket_dict["status"] = "Analyzing"  # <-- CRITICAL: Update the status!
 
-        # 5. Save the updated ticket back to the state
+        # 5. Save the updated request back to the state
         updated_ticket_json = json.dumps(ticket_dict, indent=2)
         tool_context.state["ticket"] = updated_ticket_json
 
-        print(f"INFO: Ticket status updated to 'Analyzing'. Analysis: {analysis_data}")
+        print(f"INFO: Request status updated to 'Analyzing'. Analysis: {analysis_data}")
         return updated_ticket_json
 
     except (json.JSONDecodeError, KeyError) as e:
-        error_msg = f"Error processing analysis and updating ticket: {e}"
+        error_msg = f"Error processing analysis and updating request: {e}"
         print(f"ERROR: {error_msg}")
         return error_msg

@@ -1,4 +1,4 @@
-# FILE: intelligent_support_triage/sub_agents/knowledge_retrieval/agent.py
+# FILE: adk_copilot/sub_agents/knowledge_retrieval/agent.py
 
 import os
 from google.adk.agents import Agent

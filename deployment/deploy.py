@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from google.api_core.exceptions import NotFound
 
 # Correctly import AdkApp and use agent_engines
-from intelligent_support_triage.agent import root_agent
+from adk-copilot.agent import root_agent
 from vertexai import agent_engines
 from vertexai.preview.reasoning_engines import AdkApp
 
@@ -88,7 +88,7 @@ def main():
         print("Deploying agent using agent_engines.create... This may take several minutes.")
         remote_agent = agent_engines.create(
             app,
-            display_name="Intelligent Support Triage System",
+            display_name="ADK-Copilot",
             requirements=[
                 agent_whl_path,
                 "google-cloud-aiplatform[adk,agent_engines]>=1.93.0",
