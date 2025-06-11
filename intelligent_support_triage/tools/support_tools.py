@@ -4,6 +4,7 @@ import os
 import json
 from google.adk.tools import ToolContext
 from google.cloud import bigquery
+# Corrected relative import
 from ..entities.ticket import SupportTicket
 
 def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
@@ -17,8 +18,7 @@ def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
     if not all([project_id, dataset_id]):
         return "Configuration Error: BQ_PROJECT_ID or BQ_DATASET_ID is not set."
 
-    # This is the standard and correct way to parameterize a LIKE query in BigQuery.
-    # The '%' wildcards must be concatenated in the SQL string itself.
+    # THIS IS THE DEFINITIVE, CORRECT SQL SYNTAX FOR PARAMETERIZED 'LIKE'
     sql_query = f"""
         SELECT
             t.request,
@@ -26,13 +26,13 @@ def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
         FROM
             `{project_id}.{dataset_id}.resolved_tickets` AS t
         WHERE
-            LOWER(t.request) LIKE @query_term
+            LOWER(t.request) LIKE @query_term OR LOWER(t.suggested_solution) LIKE @query_term
         LIMIT 3
     """
     
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
-            # The parameter does NOT contain the wildcards.
+            # The parameter value ITSELF contains the wildcards.
             bigquery.ScalarQueryParameter("query_term", "STRING", f"%{query.lower()}%")
         ]
     )
