@@ -89,6 +89,7 @@ def main():
         remote_agent = agent_engines.create(
             app,
             display_name="ADK-Copilot",
+            description="ADK Copilot Agent deployed for developers.",
             requirements=[
                 agent_whl_path,
                 "google-cloud-aiplatform[adk,agent_engines]>=1.93.0",
