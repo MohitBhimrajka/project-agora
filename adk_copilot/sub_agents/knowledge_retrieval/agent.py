@@ -9,7 +9,7 @@ search_knowledge_base = VertexAiRagRetrieval(
     name="search_knowledge_base",
     description="Searches the knowledge base for a given query.",
     rag_resources=[
-        rag.RagResource(rag_corpus=os.getenv("RAG_CORPUS_NAME"))
+        rag.RagResource(rag_corpus="projects/719580855933/locations/us-central1/ragCorpora/4749045807062188032")
     ],
     similarity_top_k=3,
     vector_distance_threshold=0.5,
