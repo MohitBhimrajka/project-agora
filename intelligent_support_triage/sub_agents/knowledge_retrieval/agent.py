@@ -1,29 +1,24 @@
+# FILE: intelligent_support_triage/sub_agents/knowledge_retrieval/agent.py
+
 from google.adk.agents import Agent
-from google.adk.tools import google_search
-from intelligent_support_triage.tools import search_knowledge_base, search_resolved_tickets_db
+# Note: we are no longer importing google_search or the individual tools
+from intelligent_support_triage.tools import find_relevant_information
 
 knowledge_retrieval_agent = Agent(
     name="knowledge_retrieval_agent",
-    model="gemini-2.5-pro-preview-05-06", # A more powerful model for reasoning about which tool to use
+    model="gemini-2.5-pro-preview-05-06",
     instruction="""
-        You are a Knowledge Retrieval Specialist. Your goal is to find the most
+        You are a Knowledge Retrieval Specialist. Your only goal is to find
         relevant information to help solve a customer's support ticket.
 
-        You have access to three tools:
-        1. `search_knowledge_base`: Use this first to search official company
-           documentation, FAQs, and guides.
-        2. `search_resolved_tickets_db`: If the knowledge base yields no results,
-           use this to see if a similar issue has been resolved before.
-        3. `google_search`: If both internal sources fail, use this for general
-           troubleshooting information from the web.
-
-        Based on the ticket summary, decide which tool is most appropriate.
-        Return the information you find. If you find information from multiple
-        sources, synthesize it into a single, coherent response.
+        You have one tool: `find_relevant_information`.
+        
+        You will be given a query containing the summary and category of the ticket.
+        You MUST call the `find_relevant_information` tool with this query.
+        
+        Return the exact output from the tool.
     """,
     tools=[
-        search_knowledge_base,
-        search_resolved_tickets_db,
-        google_search,
+        find_relevant_information,
     ],
 )

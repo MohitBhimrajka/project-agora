@@ -3,7 +3,7 @@ from google.adk.agents import LlmAgent
 # This agent synthesizes information into a final, user-facing response.
 solution_generation_agent = LlmAgent(
     name="solution_generation_agent",
-    model="gemini-2.0-pro-preview-05-06", # Use a powerful model for high-quality response generation
+    model="gemini-2.5-pro-preview-05-06", # Use a powerful model for high-quality response generation
     instruction="""
         You are a senior customer support specialist. Your task is to write a
         clear, helpful, and empathetic response to a customer's support ticket.
