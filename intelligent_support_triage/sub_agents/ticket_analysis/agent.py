@@ -1,7 +1,6 @@
 # FILE: intelligent_support_triage/sub_agents/ticket_analysis/agent.py
 
 from google.adk.agents import Agent
-from google.adk.tools import ToolContext # Import ToolContext
 
 # This is a specialized agent that uses a targeted prompt
 ticket_analysis_agent = Agent(
@@ -13,7 +12,7 @@ ticket_analysis_agent = Agent(
 
         The JSON object must conform to the following schema:
         - "urgency": "High" if it's a blocking error, "Medium" for how-to questions, "Low" for conceptual questions.
-        - "category": (string) Choose the best category: "Deployment", "Tool Definition", "State Management", "Evaluation", "RAG & Data", "Core Concepts", "General Inquiry".
+        - "category": (string) Choose the best category: "Deployment", "Tool Definition", "State Management", "Evaluation", "RAG & Data", "Core Concepts", "Code Generation Request", "General Inquiry".
         - "sentiment": What is the developer's emotional tone? (e.g., "Frustrated", "Curious", "Confused")
         - "summary": (string) Provide a concise, one-sentence summary of the developer's core issue.
 
