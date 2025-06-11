@@ -7,7 +7,7 @@ from google.adk.tools import ToolContext # Import ToolContext
 # to perform a specific task and return a structured JSON string.
 ticket_analysis_agent = Agent(
     name="ticket_analysis_agent",
-    model="gemini-2.5-pro-preview-05-06",
+    model="gemini-2.0-flash-001",
     instruction="""
         You are a support ticket analyst. Your task is to carefully read the
         provided ticket request and return a structured JSON object with your
