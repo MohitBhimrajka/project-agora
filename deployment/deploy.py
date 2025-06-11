@@ -11,10 +11,10 @@ from vertexai import agent_engines
 from vertexai.preview.reasoning_engines import AdkApp
 
 def main():
-    """Deploys or deletes the Intelligent Support Triage agent on Vertex AI Agent Engine."""
+    """Deploys or deletes the ADK Copilot agent on Vertex AI Agent Engine."""
     load_dotenv()
 
-    parser = argparse.ArgumentParser(description="Deploy or delete the Intelligent Support Triage agent.")
+    parser = argparse.ArgumentParser(description="Deploy or delete the ADK Copilot agent.")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--create", action="store_true", help="Create and deploy a new agent.")
     group.add_argument("--delete", action="store_true", help="Delete a deployed agent.")

@@ -1,6 +1,6 @@
 # Data Directory
 
-This directory contains all the source data required to power the Intelligent Support Triage agent. The data is divided into two main categories: a knowledge base derived from official documentation and a mock database of historical tickets.
+This directory contains all the source data required to power the ADK Copilot agent. The data is divided into two main categories: a knowledge base derived from official documentation and a mock database of historical tickets.
 
 ## Directory Structure
 

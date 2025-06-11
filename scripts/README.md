@@ -1,6 +1,6 @@
 # Scripts Directory
 
-This directory contains all the automation and setup scripts required to prepare the environment and data backends for the Intelligent Support Triage agent.
+This directory contains all the automation and setup scripts required to prepare the environment and data backends for the ADK Copilot agent.
 
 The primary way to use these scripts is through the main `setup_environment.sh` script in the project root, which runs them in the correct order.
 

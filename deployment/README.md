@@ -1,6 +1,6 @@
 # Deployment Directory
 
-This directory contains the scripts and configuration needed to deploy the Intelligent Support Triage agent to the **Google Cloud Vertex AI Agent Engine**.
+This directory contains the scripts and configuration needed to deploy the ADK Copilot agent to the **Google Cloud Vertex AI Agent Engine**.
 
 ## Overview
 
