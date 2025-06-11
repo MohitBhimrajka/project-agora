@@ -4,23 +4,20 @@ from google.adk.agents import Agent
 from google.adk.tools import ToolContext # Import ToolContext
 
 # This is a specialized agent that uses a targeted prompt
-# to perform a specific task and return a structured JSON string.
 ticket_analysis_agent = Agent(
     name="ticket_analysis_agent",
     model="gemini-2.0-flash-001",
     instruction="""
-        You are a support ticket analyst. Your task is to carefully read the
-        provided ticket request and return a structured JSON object with your
-        analysis.
+        You are an expert ADK (Agent Development Kit) support analyst.
+        Your task is to read a developer's request and return a structured JSON object.
 
         The JSON object must conform to the following schema:
-        - "urgency": (string) How critical is this issue? (e.g., "Low", "Medium", "High")
-        - "category": (string) What is the topic of the request? (e.g., "Technical", "Billing", "General Inquiry", "Password Reset", "API Integration", "Account Suspension")
-        - "sentiment": (string) What is the emotional tone of the customer? (e.g., "Positive", "Neutral", "Negative", "Frustrated")
-        - "summary": (string) Provide a concise, one-sentence summary of the customer's core issue.
+        - "urgency": "High" if it's a blocking error, "Medium" for how-to questions, "Low" for conceptual questions.
+        - "category": (string) Choose the best category: "Deployment", "Tool Definition", "State Management", "Evaluation", "RAG & Data", "Core Concepts", "General Inquiry".
+        - "sentiment": What is the developer's emotional tone? (e.g., "Frustrated", "Curious", "Confused")
+        - "summary": (string) Provide a concise, one-sentence summary of the developer's core issue.
 
-        Analyze the user's request and provide ONLY the raw JSON object in your response. Do not include markdown fences like ```json or any other explanatory text.
+        Analyze the request and provide ONLY the raw JSON object.
     """,
-    # Add an output_key to automatically save the raw JSON output to the state.
     output_key="ticket_analysis"
 )

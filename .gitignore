@@ -126,3 +126,4 @@ dmypy.json
 cython_debug/ 
 
 *.lock
+*.md
