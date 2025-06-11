@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "intelligent-support-triage"
+version = "0.1.0"
+description = "An intelligent multi-agent system for triaging customer support tickets."
+authors = ["Your Name <you@example.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+google-adk = "^1.0.0"
+google-cloud-aiplatform = { extras = ["adk", "agent-engines", "evaluation"], version = "^1.93.0" }
+pydantic = "^2.11.3"
+python-dotenv = "^1.0.1"
+sqlglot = "^26.10.1"
+db-dtypes = "^1.4.2"
+requests = "^2.31.0" # For future CRM/API tool integration
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-asyncio = "^0.26.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
