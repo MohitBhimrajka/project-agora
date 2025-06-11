@@ -11,16 +11,16 @@ def upload_folder_to_gcs(bucket_name, source_folder, destination_prefix=""):
     """Uploads all files from a local folder to a GCS bucket."""
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
-    
+
     filepaths = glob.glob(os.path.join(source_folder, "**", "*"), recursive=True)
-    
+
     for filepath in filepaths:
         if os.path.isfile(filepath):
             destination_blob_name = os.path.join(destination_prefix, os.path.relpath(filepath, source_folder))
             blob = bucket.blob(destination_blob_name)
             blob.upload_from_filename(filepath)
             print(f"File {filepath} uploaded to gs://{bucket_name}/{destination_blob_name}.")
-            
+
 def create_gcs_bucket_if_not_exists(bucket_name, project_id, location):
     """Creates a GCS bucket if it does not already exist."""
     storage_client = storage.Client(project=project_id)
@@ -42,10 +42,10 @@ def setup():
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
     location = os.getenv("GOOGLE_CLOUD_LOCATION")
     bucket_name = os.getenv("GOOGLE_CLOUD_STORAGE_BUCKET")
-    
+
     if not all([project_id, location, bucket_name]):
         raise ValueError("GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, and GOOGLE_CLOUD_STORAGE_BUCKET must be set.")
-        
+
     env_file_path = Path(".env")
     if not env_file_path.exists():
         env_file_path.touch()
@@ -58,7 +58,7 @@ def setup():
     kb_source_folder = "data/knowledge_base"
     gcs_destination_prefix = "rag_knowledge_base"
     upload_folder_to_gcs(bucket_name, kb_source_folder, gcs_destination_prefix)
-    
+
     gcs_uri = f"gs://{bucket_name}/{gcs_destination_prefix}"
 
     # 2. Create RAG Corpus
@@ -68,17 +68,26 @@ def setup():
         corpus = rag.create_corpus(display_name=corpus_display_name)
         corpus_name = corpus.name
         write_to_env(env_file_path, "RAG_CORPUS_NAME", corpus_name)
-        
+
         # 3. Import files into the Corpus
         print(f"Importing files from '{gcs_uri}' into corpus '{corpus_name}'...")
+
+        # --- THIS IS THE CORRECTED SECTION ---
+        transformation_config = rag.TransformationConfig(
+            chunking_config=rag.ChunkingConfig(
+                chunk_size=512,
+                chunk_overlap=100,
+            )
+        )
         rag.import_files(
             corpus_name,
             [gcs_uri],
-            chunk_size=512,
-            chunk_overlap=100,
+            transformation_config=transformation_config,
         )
+        # -------------------------------------
+
         print("✅ RAG Corpus setup complete.")
-        
+
     except Conflict:
         print(f"RAG Corpus '{corpus_display_name}' already exists. Skipping creation.")
         # If you need to find the existing one, you'd list them.

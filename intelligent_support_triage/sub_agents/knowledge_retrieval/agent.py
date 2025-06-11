@@ -4,7 +4,7 @@ from intelligent_support_triage.tools import search_knowledge_base, search_resol
 
 knowledge_retrieval_agent = Agent(
     name="knowledge_retrieval_agent",
-    model="gemini-2.0-pro-preview-05-06", # A more powerful model for reasoning about which tool to use
+    model="gemini-2.5-pro-preview-05-06", # A more powerful model for reasoning about which tool to use
     instruction="""
         You are a Knowledge Retrieval Specialist. Your goal is to find the most
         relevant information to help solve a customer's support ticket.
