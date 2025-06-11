@@ -5,25 +5,26 @@ from google.adk.agents import Agent
 from google.adk.tools.retrieval import VertexAiRagRetrieval
 from vertexai.preview import rag
 
-# This tool is now the ONLY tool for this agent.
 search_knowledge_base = VertexAiRagRetrieval(
     name="search_knowledge_base",
-    description="Searches official company documentation, FAQs, and guides. Use this for general 'how-to' questions or to understand features.",
+    description="Searches the knowledge base for a given query.",
     rag_resources=[
         rag.RagResource(rag_corpus=os.getenv("RAG_CORPUS_NAME"))
     ],
+    similarity_top_k=3,
+    vector_distance_threshold=0.5,
 )
 
 knowledge_retrieval_agent = Agent(
     name="knowledge_retrieval_agent",
     model="gemini-2.5-pro-preview-05-06",
     instruction="""
-        You are a knowledge base specialist. You will be given a query
-        summarizing a customer issue. Your only job is to call the
-        `search_knowledge_base` tool with that exact query to find an
-        official solution.
+        You are a search specialist. Your only job is to execute a search
+        for the given user request using the `search_knowledge_base` tool.
+        You must call this tool. Do not add any conversational text.
     """,
     tools=[
         search_knowledge_base,
     ],
+    output_key="kb_retrieval_results"
 )

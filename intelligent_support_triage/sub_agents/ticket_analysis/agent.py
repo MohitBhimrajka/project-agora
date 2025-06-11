@@ -1,6 +1,7 @@
 # FILE: intelligent_support_triage/sub_agents/ticket_analysis/agent.py
 
 from google.adk.agents import Agent
+from google.adk.tools import ToolContext # Import ToolContext
 
 # This is a specialized agent that uses a targeted prompt
 # to perform a specific task and return a structured JSON string.
@@ -20,6 +21,6 @@ ticket_analysis_agent = Agent(
 
         Analyze the user's request and provide ONLY the raw JSON object in your response. Do not include markdown fences like ```json or any other explanatory text.
     """,
-    # This agent has no tools and doesn't need a response_model.
-    # Its sole job is to return a JSON string based on the prompt.
+    # Add an output_key to automatically save the raw JSON output to the state.
+    output_key="ticket_analysis"
 )

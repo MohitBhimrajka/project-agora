@@ -1,3 +1,5 @@
+# FILE: intelligent_support_triage/tools/support_tools.py
+
 import os
 import json
 from google.adk.tools import ToolContext
@@ -7,7 +9,6 @@ from intelligent_support_triage.entities.ticket import SupportTicket
 def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
     """
     Searches a database of previously resolved support tickets for similar issues.
-    Use this to find solutions for common, recurring problems.
     """
     print(f"INFO: Searching resolved tickets DB with query: {query}")
     project_id = os.getenv("BQ_PROJECT_ID")
@@ -22,7 +23,7 @@ def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
         ]
     )
     
-    # FINAL FIX: Use a table alias `t` to prevent "Unrecognized name" error.
+    # FINAL, CORRECTED SQL: Added 't.' prefix to all columns in SELECT and WHERE.
     sql_query = f"""
         SELECT
             t.request,
@@ -30,7 +31,7 @@ def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
         FROM
             `{project_id}.{dataset_id}.resolved_tickets` AS t
         WHERE
-            LOWER(t.request) LIKE LOWER(@query_term)
+            LOWER(t.request) LIKE LOWER(@query_term) OR LOWER(t.suggested_solution) LIKE LOWER(@query_term)
         LIMIT 3
     """
 
@@ -43,17 +44,17 @@ def search_resolved_tickets_db(query: str, tool_context: ToolContext) -> str:
             return "No similar resolved tickets found in the database."
 
         formatted_results = [
-            f"Similar Request: {row.request}\nProvided Solution: {row.suggested_solution}"
+            f"Similar Request: {row.request}\\nProvided Solution: {row.suggested_solution}"
             for row in results
         ]
-        return "\n---\n".join(formatted_results)
+        return "\\n---\\n".join(formatted_results)
     except Exception as e:
-        return f"An error occurred while querying BigQuery: {str(e)}"
+        # Return a clear error message that the orchestrator can understand.
+        return f"Database Search Error: {str(e)}"
 
 def create_ticket(request: str, tool_context: ToolContext) -> str:
     """
-    Creates a new support ticket object from the user's initial request.
-    This should be the first step for any new support issue.
+    Creates a new support ticket and initializes the state for the workflow.
     """
     print(f"INFO: Creating a new ticket for request: '{request}'")
     ticket = SupportTicket(
@@ -62,5 +63,11 @@ def create_ticket(request: str, tool_context: ToolContext) -> str:
         request=request,
     )
     ticket_json = ticket.to_json()
+    
+    print("INFO: Initializing workflow state.")
     tool_context.state["ticket"] = ticket_json
+    tool_context.state["ticket_analysis"] = "{}"
+    tool_context.state["kb_retrieval_results"] = "Not run."
+    tool_context.state["db_retrieval_results"] = "Not run."
+    
     return ticket_json
