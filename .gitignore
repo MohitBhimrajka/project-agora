@@ -63,6 +63,7 @@ ipython_config.py
 # --- Virtual Environments ---
 # This is one of the most important rules. Never commit your virtual environment.
 .env
+.env.*
 .venv
 env/
 venv/
@@ -82,6 +83,9 @@ dmypy.json
 .pytype/
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
 
 # --- Cython debug symbols ---
 cython_debug/
@@ -89,3 +93,62 @@ cython_debug/
 # --- MacOS specific ---
 # This was causing your .DS_Store files to be untracked, which is correct.
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Windows specific ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Linux specific ---
+.Trash-*
+
+# --- Google Cloud & ADK specific ---
+# Service account keys and credentials
+*.json
+!**/package*.json
+!**/pyproject.json
+!eval/data/*.json
+service-account-*.json
+gcp-credentials.json
+credentials.json
+application_default_credentials.json
+
+# --- Logs ---
+*.log
+logs/
+*.out
+*.err
+
+# --- Temporary files ---
+tmp/
+temp/
+.tmp
+.temp
+
+# --- Database files ---
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Configuration files with secrets ---
+config.ini
+settings.ini
+.secrets
+
+# --- Backup files ---
+*.bak
+*.backup
+*.orig
+
+# --- Node.js (in case you add frontend components) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- ADK specific artifacts ---
+adk_agent.yaml
+agent_config.yaml
+.adk/
