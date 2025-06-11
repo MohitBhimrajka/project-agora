@@ -1,9 +1,9 @@
 from google.adk.agents import LlmAgent
-from ..solution_generation.agent import build_solution_context # We can reuse the same context builder
+from ...utils import build_solution_context
 
 code_generator_agent = LlmAgent(
     name="code_generator_agent",
-    model="gemini-2.5-pro-05-06", # Use the Pro model for high-quality code generation
+    model="gemini-2.5-pro-preview-05-06",
     instruction="""
         You are an Expert ADK Solutions Architect. Your role is to write complete,
         high-quality Python code for the Google Agent Development Kit based on a developer's request.

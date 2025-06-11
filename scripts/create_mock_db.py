@@ -28,7 +28,7 @@ def generate_mock_data():
         
         # --- Environment & Configuration ---
         ["ADK-401", "DEV-401", "My app is crashing with `ModuleNotFoundError: No module named 'llama_index'` when I try to use the RAG tool.", "Dependencies / Setup", "The ADK's built-in `VertexAiRagRetrieval` tool requires `llama-index` as a peer dependency. To fix this, you must explicitly add `llama-index = \"^0.12.1\"` (or a compatible version) to your `pyproject.toml` file and then run `poetry install` to update your environment."],
-        ["ADK-402", "DEV-402", "My agent is failing with a `404 NOT_FOUND` error for a model like `gemini-2.5-pro-preview-05-06`.", "Configuration", "A `404 NOT_FOUND` error for a model means the model name is either incorrect or not available in your specified GCP project and region. Check the official Google Cloud documentation for valid, available model names (e.g., 'gemini-2.5-pro-05-06', 'gemini-2.0-flash-001') and update your agent definitions accordingly."]
+        ["ADK-402", "DEV-402", "My agent is failing with a `404 NOT_FOUND` error for a model like `gemini-2.5-pro-preview-05-06`.", "Configuration", "A `404 NOT_FOUND` error for a model means the model name is either incorrect or not available in your specified GCP project and region. Check the official Google Cloud documentation for valid, available model names (e.g., 'gemini-2.5-pro-preview-05-06', 'gemini-2.0-flash-001') and update your agent definitions accordingly."]
     ]
 
     output_dir = "data"

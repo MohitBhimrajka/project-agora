@@ -1,9 +1,9 @@
 from google.adk.agents import LlmAgent
-from ..solution_generation.agent import build_solution_context # We can reuse the same context builder
+from ...utils import build_solution_context
 
 problem_solver_agent = LlmAgent(
     name="problem_solver_agent",
-    model="gemini-2.5-pro-05-06", # Use the Pro model for high-quality reasoning
+    model="gemini-2.5-pro-preview-05-06",
     instruction="""
         You are a Senior ADK Support Engineer. Your expertise is in diagnosing problems,
         explaining complex concepts, and providing clear, actionable solutions based on
