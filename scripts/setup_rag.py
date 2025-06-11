@@ -75,8 +75,8 @@ def setup():
         # --- THIS IS THE CORRECTED SECTION ---
         transformation_config = rag.TransformationConfig(
             chunking_config=rag.ChunkingConfig(
-                chunk_size=512,
-                chunk_overlap=100,
+                chunk_size=900,
+                chunk_overlap=135,
             )
         )
         rag.import_files(
