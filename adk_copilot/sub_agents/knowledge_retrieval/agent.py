@@ -6,7 +6,7 @@ from google.adk.tools.retrieval import VertexAiRagRetrieval
 from vertexai.preview import rag
 
 # Load the corpus name from the environment variable
-RAG_CORPUS_RESOURCE_NAME = "projects/agentops-dev/locations/us-central1/ragCorpora/8207810320882728960"
+RAG_CORPUS_RESOURCE_NAME = os.getenv("RAG_CORPUS_NAME")
 
 # The VertexAiRagRetrieval tool is a high-level tool that handles retrieval.
 # The `query` parameter of this tool is what will be sent to the RAG engine.
