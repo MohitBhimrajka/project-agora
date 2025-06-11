@@ -2,6 +2,7 @@ import os
 from google.adk.tools import ToolContext
 from google.cloud import bigquery
 from vertexai import rag
+from intelligent_support_triage.entities.ticket import SupportTicket
 
 # We will define a placeholder for the BigQuery client for now.
 # In a real app, you would initialize this once.
@@ -73,3 +74,28 @@ def search_resolved_tickets_db(natural_language_query: str, tool_context: ToolCo
 
     except Exception as e:
         return f"An error occurred while querying BigQuery: {str(e)}"
+    
+def create_ticket(request: str, tool_context: ToolContext) -> str:
+    """
+    Creates a new support ticket object from the user's initial request
+    and saves it to the session state.
+    
+    Args:
+        request: The original, verbatim request from the customer.
+        
+    Returns:
+        A JSON string representation of the newly created ticket.
+    """
+    print(f"INFO: Creating a new ticket for request: '{request}'")
+    ticket = SupportTicket(
+        ticket_id="TICK-DEMO-001",
+        customer_id="CUST-DEMO-123",
+        request=request,
+    )
+    ticket_json = ticket.to_json()
+    
+    # Save the new ticket to the session state
+    tool_context.state["ticket"] = ticket_json
+    
+    # Return the created ticket so the orchestrator knows what was created
+    return ticket_json
