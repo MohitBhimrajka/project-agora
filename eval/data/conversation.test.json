@@ -1,19 +1,31 @@
 [
-    {
-      "query": "Hello there!",
-      "expected_tool_use": [],
-      "reference": "Hello! I am an intelligent support system for the Google ADK. How can I help you today?"
-    },
-    {
-      "query": "How do I pass data between sub-agents?",
-      "expected_tool_use": [
-          { "tool_name": "create_ticket" },
-          { "tool_name": "ticket_analysis_agent" },
-          { "tool_name": "update_ticket_after_analysis" },
-          { "tool_name": "knowledge_retrieval_agent" },
-          { "tool_name": "db_retrieval_agent" },
-          { "tool_name": "problem_solver_agent" }
-      ],
-      "reference": "The best practice is to have the orchestrator manage the flow. The orchestrator should receive the full output from one tool call, parse it, and then pass the relevant data as arguments to the next tool."
-    }
-  ]
+  {
+    "query": "Hello there!",
+    "expected_tool_use": [],
+    "reference": "Hello! I am ADK Copilot, an expert AI assistant for the Google Agent Development Kit. How can I help you today?"
+  },
+  {
+    "query": "My deployment is failing with a 403 Permission Denied error.",
+    "expected_tool_use": [
+      { "tool_name": "create_ticket" },
+      { "tool_name": "ticket_analysis_agent" },
+      { "tool_name": "update_ticket_after_analysis" },
+      { "tool_name": "knowledge_retrieval_agent" },
+      { "tool_name": "db_retrieval_agent" },
+      { "tool_name": "problem_solver_agent" }
+    ],
+    "reference": "A 403 error on deployment almost always indicates an IAM permission issue. Ensure that the service account being used for deployment has the 'Vertex AI Admin' and 'Service Account User' roles."
+  },
+  {
+    "query": "Write me an agent that uses a custom tool to get the current weather.",
+    "expected_tool_use": [
+        { "tool_name": "create_ticket" },
+        { "tool_name": "ticket_analysis_agent" },
+        { "tool_name": "update_ticket_after_analysis" },
+        { "tool_name": "knowledge_retrieval_agent" },
+        { "tool_name": "db_retrieval_agent" },
+        { "tool_name": "code_generator_agent" }
+    ],
+    "reference": "To build a weather agent, I propose an architecture with a main `WeatherAgent` that uses a custom `get_weather` tool. Is this design acceptable?"
+  }
+]

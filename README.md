@@ -214,5 +214,4 @@ adk-copilot/
 ```
 
 ## Disclaimer
-
-This is a demonstration project and is not intended for production use without further testing and hardening.
+This project was developed for the Agent Development Kit Hackathon with Google Cloud. It is intended for demonstration and educational purposes and is not an official Google product. You are solely responsible for testing, validating, and securing any code or solutions before use in a production environment.
