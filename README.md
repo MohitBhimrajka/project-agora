@@ -1,5 +1,7 @@
 # ADK Copilot: A Reusable Framework for Multi-Agent AI
 
+> ### Built for ADK Developers, by an ADK-powered AI Team
+
 ![Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)
 ![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)
 
