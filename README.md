@@ -1,240 +1,114 @@
-# ADK Copilot: A Reusable Multi-Agent Framework built with Google ADK
+# ADK Copilot: A Reusable Framework for Multi-Agent AI
 
 ![Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)
 ![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)
 
-This repository showcases a powerful, reusable framework built from the ground up with the **Google Agent Development Kit (ADK)**. It demonstrates how to leverage the ADK to architect and orchestrate a sophisticated team of AI specialists that can automate complex processes.
+This project began with a simple goal: to build a tool that could solve my own challenges while learning the new Google Agent Development Kit. It evolved into something much bigger: a powerful, reusable framework for building and orchestrating sophisticated teams of AI specialists.
 
-The primary implementation, **ADK Copilot**, serves as an expert assistant for the ADK itself. However, the core of this project is a **domain-agnostic framework** that you can adapt to create your own specialized AI assistants, all while using the ADK's robust orchestration capabilities.
+This repository provides two key things:
+1.  **A ready-to-run AI assistant, "ADK Copilot,"** which serves as an expert on the ADK itself.
+2.  **A domain-agnostic framework** that you can adapt to create your own AI assistant for any field, built on the robust orchestration capabilities of the Google ADK.
 
-<!-- **[➡️ Watch the Demo Video Here](https://your-video-link.com)** -->
+<!-- **➡️ Watch the Demo Video Here: [Link to YouTube/Vimeo]** -->
+
 ---
 
-## The ADK-Powered Framework
+![ADK Copilot Architecture](architecture_diagram.png)
+_The high-level architecture: A central ADK Orchestrator managing a team of specialist agents._
 
-This project's innovation lies in using the ADK not just to build a single agent, but to create a **blueprint for collaborative AI systems**. The framework provides a pre-built, stateful orchestration engine, allowing you to focus on defining your agents' unique skills rather than the complex mechanics of their interaction.
+## The Core Idea: A Framework for AI Teams
 
-This architecture is designed for extension. You can create your own powerful assistant by:
-1.  **Defining Agent Expertise:** Update the prompts in the modular sub-agents (`problem_solver`, `code_generator`, etc.) to give them new specializations.
-2.  **Providing Custom Knowledge:** Swap the included documentation and data for your own, and the automated setup scripts will create a new knowledge base for your agents.
-3.  **Expanding the Team:** The ADK's design makes it simple to add new specialist agents and register them with the central orchestrator.
+A truly helpful AI assistant needs to do more than just search documents. It must analyze problems, recall past experiences, synthesize solutions, and create new things. This requires a team.
 
-## Key Features: How the ADK Enables an Advanced Architecture
+This framework provides the blueprint for that team. It uses the **Google Agent Development Kit** to create a central `orchestrator_agent` that manages a workflow across a team of swappable, specialist sub-agents. The heavy lifting—the stateful orchestration, the parallel data retrieval, the error handling—is already done. You just need to define your team's expertise.
 
-### A Modular Team of AI Specialists, Enabled by ADK
-The framework's core is an `orchestrator_agent` that manages a team of sub-agents. This pattern, made clean and simple by the ADK's `AgentTool`, allows for a clear separation of concerns, making the system easy to extend and maintain.
+## Key Architectural Pillars
 
-### Supercharging ADK Agents with Vertex AI
-To give our ADK agents powerful tools, we integrated them with Google Cloud's best-in-class services:
-*   **The Librarian Agent:** This ADK agent wields the **Vertex AI RAG Engine**, allowing it to perform true semantic search across a vast corpus of documents.
-*   **The Veteran Agent:** This ADK agent connects to **BigQuery**, using its native **vector search** capabilities to recall solutions from a historical database, giving the system a powerful, experience-based memory.
+I designed the framework around three core pillars to make it powerful, reliable, and easy to use.
 
-### Seamless Deployment for ADK Applications
-The framework includes a complete CI/CD-ready setup for your ADK applications.
-*   **For Development:** A single command deploys the system to **Cloud Run**, providing a web UI for rapid testing.
-*   **For Production:** A second script provides a path to a managed, scalable endpoint on the **Vertex AI Agent Engine**.
+#### 1. Stateful Orchestration with ADK
+Reliability is everything. The orchestrator is not a free-thinking LLM; it's a strict state machine governed by its ADK prompt. It manages a `SupportTicket` state object, moving a task predictably through stages like `New` -> `Analyzing` -> `Pending Solution`. This makes the entire system robust and debuggable.
 
-### One-Command Setup for Your ADK Environment
-To accelerate development, a master `setup_environment.sh` script automates the entire backend creation on Google Cloud, saving hours of manual configuration of data sources for your agents.
+#### 2. Dual-Source Knowledge with Vertex AI & BigQuery
+An expert has both "book smarts" and "street smarts." This framework gives that to your agents.
+*   **Book Smarts (The Librarian):** An ADK agent wields the **Vertex AI RAG Engine**, allowing it to perform true semantic search across a vast corpus of your unstructured documents.
+*   **Street Smarts (The Veteran):** Another ADK agent connects to **BigQuery**, using its native **vector search** to find solutions from a historical database of past problems, giving the system a powerful, experience-based memory.
+
+#### 3. One-Command Cloud Setup
+A powerful tool that's hard to set up will never get used. I invested heavily in a master `setup_environment.sh` script that automates the entire Google Cloud backend. It provisions GCS buckets, creates and populates **BigQuery** tables, and builds your **Vertex AI RAG Corpus** with a single command, saving hours of manual configuration.
 
 ## The ADK Copilot: An Example in Action
 
-Our pre-configured implementation demonstrates this framework's power by tackling the complex process of developer support for the Google Agent Development Kit.
+The best way to understand the framework is to run the pre-configured ADK Copilot. This implementation is designed to automate the complex process of developer support.
 
-### Agent Architecture
+### The Specialist AI Team
+The orchestrator manages a team of five highly specialized agents:
 
-![ADK Copilot Architecture](architecture_diagram.png)
+*   **`ticket_analysis_agent` (The Analyst):** The first point of contact. It performs triage on a raw user query, analyzing its intent and structuring it into a formal "ticket" with a category, urgency, and summary.
+*   **`knowledge_retrieval_agent` (The Librarian):** This agent's only job is to search the official documentation. It uses the Vertex AI RAG tool to find relevant guides, APIs, and best practices.
+*   **`db_retrieval_agent` (The Veteran):** This agent searches for historical solutions to similar problems in our BigQuery database, leveraging experience from past issues.
+*   **`problem_solver_agent` (The Synthesizer):** A final "synthesis" agent for providing text-based solutions. It takes the context gathered by the Librarian and the Veteran and composes a comprehensive, step-by-step answer for troubleshooting or conceptual questions.
+*   **`code_generator_agent` (The Engineer):** The second final "synthesis" agent. When a request is categorized as "Code Generation," this specialist takes over to design and write complete, multi-file code examples.
 
-The system is orchestrated by a main `orchestrator_agent` which delegates tasks to the following pre-configured specialists:
-*   **`ticket_analysis_agent`**: Analyzes the initial developer request.
-*   **`knowledge_retrieval_agent`**: Searches the ADK documentation via Vertex AI RAG.
-*   **`db_retrieval_agent`**: Searches a BigQuery DB of historical ADK issues.
-*   **`problem_solver_agent`**: Synthesizes context to solve technical problems.
-*   **`code_generator_agent`**: Generates complete, multi-file ADK code.
+## Getting Started
 
-### Key Features
+#### Setup and Installation
+1.  **Prerequisites:** Python 3.11+, Poetry, and an authenticated Google Cloud SDK.
+2.  **Configure:** Copy `.env.example` to `.env` and fill in your GCP `project-id` and a unique `bucket-name`.
+3.  **Install:** Run `poetry install` to create the virtual environment and install dependencies.
+4.  **Build Backend:** Run `./setup_environment.sh` to automatically provision all cloud resources.
 
--   **Reusable Multi-Agent Framework:** A robust, state-driven architecture that can be easily adapted to any knowledge domain.
--   **Stateful, Multi-Turn Workflow:** Manages a `SupportTicket` state object to ensure a logical, fault-tolerant progression from problem to solution.
--   **Dual-Source Knowledge Retrieval:** Combines real-time document search (RAG) with historical data lookup (BigQuery vector search) for comprehensive context.
--   **Fully Automated Cloud Setup:** A single shell script (`setup_environment.sh`) handles the creation of all necessary data, Google Cloud Storage, BigQuery tables, and the Vertex AI RAG Corpus, making setup seamless.
--   **Production-Ready Deployment Options:** Includes scripts to deploy the system to both Google Cloud Run (for development) and the scalable Vertex AI Agent Engine (for production).
+#### Running the Agent
+Start the local web interface with `adk web` and select `adk_copilot` from the dropdown.
 
-> **Note on Included Knowledge Base:** The knowledge base for the ADK Copilot implementation is generated by scraping the publicly available [Google ADK documentation website](https://google.github.io/adk-docs/). All content rights belong to the original authors.
+### Example Interaction
+Here's a walkthrough of the agent solving a real-world developer problem:
 
-## Technologies Used
+> **User:** My deployment is failing with a 403 Permission Denied error.
 
-*   **Core Framework:** Google Agent Development Kit (ADK)
-*   **Language:** Python 3.11+
-*   **AI Models:** Google Gemini 1.5 Pro & 1.5 Flash (via Vertex AI)
-*   **Data & Retrieval:**
-    *   Vertex AI RAG (Retrieval-Augmented Generation)
-    *   Google BigQuery (for vector search on historical data)
-    *   Google Cloud Storage (for RAG document storage)
-*   **Deployment:**
-    *   Vertex AI Agent Engine
-    *   Google Cloud Run
-*   **Tooling:** Poetry, GCloud SDK
+> **Agent:** Thank you for your request. I have created a developer request and will now begin the analysis process.
 
-## Setup and Installation
+> *Behind the scenes, the Analyst agent categorizes this as a "Deployment" issue. The Librarian (RAG) agent searches the ADK docs for "403 error" and "deployment", while the Veteran (BigQuery) agent searches for previously solved "403" tickets.*
 
-Follow these steps to set up the project environment and all necessary data backends.
+> **Agent:** I have gathered the necessary context. The most common cause for a 403 error during deployment is an IAM permission issue. Based on similar past tickets and the official documentation, please ensure the service account you are using has both the 'Vertex AI Admin' and 'Service Account User' roles enabled.
 
-### 1. Prerequisites
+## Customizing the Framework
+This project's greatest strength is its adaptability. To create your own specialized assistant:
 
--   Python 3.11+
--   [Poetry](https://python-poetry.org/docs/) for dependency management.
--   A Google Cloud Project with the AI Platform API enabled.
--   The [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed and authenticated (`gcloud auth application-default login`).
+1.  **Provide New Knowledge:** Replace the files in `data/knowledge_base` and update the data generation script in `scripts/create_mock_db.py`.
+2.  **Define New Specialists:** Edit the prompts in `adk_copilot/sub_agents/` to change agent expertise and behavior.
+3.  **Run the Setup Script:** Execute `./setup_environment.sh` to build a new cloud backend for your custom agent.
 
-### 2. Configure Environment Variables
+## Testing and Deployment
 
-Copy the example environment file. **This is a mandatory step.**
+*   **Evaluation:** Run `poetry run pytest eval` to test agent performance.
+*   **Deployment:** Use the scripts in the `deployment/` directory to deploy your agent to either **Google Cloud Run** or the **Vertex AI Agent Engine**. Detailed instructions are in `deployment/README.md`.
 
-```bash
-cp .env.example .env
-```
+## Repository Structure
 
-Now, edit the newly created `.env` file with your specific Google Cloud project details.
-
-```dotenv
-# .env
-GOOGLE_GENAI_USE_VERTEXAI=1
-GOOGLE_CLOUD_PROJECT=your-gcp-project-id
-GOOGLE_CLOUD_LOCATION=us-central1
-GOOGLE_CLOUD_STORAGE_BUCKET=your-gcp-project-id
-RAG_CORPUS_NAME="" # This will be auto-populated by the setup script
-BQ_PROJECT_ID=your-gcp-project-id
-BQ_DATASET_ID=adk_copilot_dataset
-CRM_API_KEY="your-crm-api-key-here" # Optional, not used in core logic
-```
-
-**Note:** The `GOOGLE_CLOUD_STORAGE_BUCKET` must be a globally unique name. Using your project ID as a prefix is a good practice to ensure uniqueness.
-
-### 3. Install Dependencies
-
-Use Poetry to create a virtual environment and install all required Python packages.
-
-```bash
-poetry install
-```
-
-### 4. Run the Automated Environment Setup
-
-This final step runs a shell script that automates the entire backend setup process. It generates mock data and configures your Google Cloud services (BigQuery and RAG).
-
-First, make the script executable:
-```bash
-chmod +x setup_environment.sh
-```
-
-Now, run the script:
-```bash
-./setup_environment.sh
-```
-
-This script will perform the following actions:
-1.  **Scrape Docs:** Run `scripts/scrape_adk_docs.py` to build the `data/knowledge_base`.
-2.  **Create Mock DB:** Run `scripts/create_mock_db.py` to generate `data/resolved_tickets.csv`.
-3.  **Setup BigQuery:** Run `scripts/setup_bigquery.py` to create the dataset and table in your GCP project and upload the CSV data.
-4.  **Setup RAG:** Run `scripts/setup_rag.py` to create a GCS bucket, upload the knowledge base, create a Vertex AI RAG Corpus, and **automatically write the new `RAG_CORPUS_NAME` back to your `.env` file.**
-
-After this script completes, your entire backend and data infrastructure will be ready to use.
-
-## Running the Agent
-
-You can interact with the agent using the ADK's built-in web interface.
-
-```bash
-# Make sure you are in the project's virtual environment
-# poetry shell
-
-adk web
-```
-
-Navigate to `http://localhost:8000` in your browser and select the `adk_copilot` agent from the dropdown menu.
-
-### Example Interactions
-
--   **Problem Solving:** "My deployment is failing with a 403 Permission Denied error when trying to deploy my agent to Vertex AI. I've checked my service account permissions but I'm still getting this error."
--   **Code Generation:** "Write me an agent that uses a custom tool to get the current weather and provides personalized clothing recommendations based on the forecast."
--   **Architecture Guidance:** "I need to build a multi-agent system that processes customer feedback. What's the best approach using ADK?"
--   **Debugging Help:** "My agent is running but the tools aren't being called correctly. Can you help me troubleshoot?"
-
-## Findings & Learnings
-
-Building this project was a deep dive into the practicalities of multi-agent system design. Here are our key takeaways:
-
-1.  **The Orchestrator is a State Machine:** The most critical learning was that a robust orchestrator is essentially a state machine. By managing a `status` field (e.g., "New", "Analyzing", "Pending Solution") in the shared state, we could create a reliable, sequential, and fault-tolerant workflow. Without this, agents would fire unpredictably.
-2.  **Isolate Specialized Tools:** Early on, we had issues mixing the `VertexAiRagRetrieval` tool with other custom tools in a single agent. The solution was architectural: create highly specialized "tool-runner" agents (like `knowledge_retrieval_agent`) whose only job is to expose one complex tool. This simplified the orchestrator's job and resolved API constraints.
-3.  **Prompt Engineering is System Design:** The orchestrator's prompt isn't just an instruction; it's the central logic of the application. We spent significant time refining it to be deterministic, forcing a specific sequence of actions based on the current state. This was more effective than letting the model "decide" the entire workflow on its own.
-4.  **Automation is Key for Judges:** We knew that a complex backend (BigQuery, RAG, GCS) would be hard for judges to set up. Investing time in the `setup_environment.sh` script was crucial to ensure our project was easily testable, a key requirement for the hackathon.
-
-## Project Structure
-
-A comprehensive overview of the repository structure:
+The repository is organized to separate the core application logic from data, scripts, and deployment configurations.
 
 ```
-adk-copilot/
-├── adk_copilot/                    # Core source code for the agent system
-│   ├── agent.py                    # Main orchestrator agent definition
-│   ├── prompts.py                  # System prompts for all agents
-│   ├── entities/                   # Data models and structures
-│   │   ├── ticket.py              # SupportTicket Pydantic model
-│   │   └── __init__.py
-│   ├── sub_agents/                 # Specialized sub-agent implementations
-│   │   ├── README.md              # Sub-agents documentation
-│   │   ├── ticket_analysis/        # Analyzes and categorizes user requests
-│   │   │   ├── agent.py
-│   │   │   └── __init__.py
-│   │   ├── knowledge_retrieval/    # RAG-based documentation search
-│   │   │   ├── agent.py
-│   │   │   └── __init__.py
-│   │   ├── db_retrieval/          # BigQuery historical data search
-│   │   │   ├── agent.py
-│   │   │   └── __init__.py
-│   │   ├── problem_solver/        # Synthesizes solutions from context
-│   │   │   ├── agent.py
-│   │   │   └── __init__.py
-│   │   ├── code_generator/        # Generates code examples and implementations
-│   │   │   ├── agent.py
-│   │   │   └── __init__.py
-│   │   └── __init__.py
-│   ├── tools/                     # Custom Python function tools
-│   │   ├── tools.py               # RAG search and BigQuery tools
-│   │   ├── README.md              # Tools documentation
-│   │   └── __init__.py
-│   └── __init__.py
-├── scripts/                       # Environment setup and data preparation
-│   ├── README.md                  # Scripts documentation
-│   ├── scrape_adk_docs.py         # Scrapes ADK documentation for knowledge base
-│   ├── create_mock_db.py          # Generates mock historical ticket data
-│   ├── setup_bigquery.py         # Creates BigQuery dataset and uploads data
-│   └── setup_rag.py              # Sets up Vertex AI RAG corpus and GCS bucket
-├── data/                          # Data files and knowledge base
-│   ├── README.md                  # Data documentation
-│   ├── knowledge_base/            # Scraped ADK documentation files
-│   │   ├── adk_handbook.md        # Comprehensive ADK handbook
-│   │   ├── adk-docs.md           # Main documentation file
-│   │   ├── adk-docs_*.md         # Specific documentation sections
-│   │   ├── *.txt                 # Additional knowledge files
-│   │   └── rag.txt               # RAG-specific documentation
-│   ├── pdf/                      # PDF versions of knowledge base files
-│   └── resolved_tickets.csv       # Mock historical support tickets
-├── deployment/                    # Deployment scripts and configurations
-│   ├── README.md                  # Deployment documentation
-│   ├── deploy_cloud_run.sh        # Cloud Run deployment script
-│   └── deploy_vertex_agents.sh    # Vertex AI deployment script
-├── setup_environment.sh           # Automated environment setup script
-├── pyproject.toml                 # Poetry configuration and dependencies
-├── .env.example                   # Example environment variables file
-└── README.md                      # This file
+mohitbhimrajka-adk-copilot/
+├── adk_copilot/         # Core application source code.
+│   ├── agent.py         # Main orchestrator agent definition.
+│   ├── prompts.py       # Centralized prompts for all agents.
+│   ├── entities/        # Pydantic data models (e.g., SupportTicket).
+│   ├── sub_agents/      # The five specialist sub-agent implementations.
+│   └── tools/           # Custom Python function tools (e.g., BigQuery search).
+├── data/                # Source data for knowledge base and mock database.
+│   ├── knowledge_base/  # Documents for the Vertex AI RAG Corpus.
+│   └── resolved_tickets.csv # Data for the BigQuery historical database.
+├── scripts/             # Automation scripts for setup and data preparation.
+│   ├── setup_bigquery.py
+│   └── setup_rag.py     # ... and others.
+├── deployment/          # Deployment scripts for Cloud Run & Agent Engine.
+├── eval/                # Evaluation suite for testing agent performance.
+├── setup_environment.sh # The master script for one-command setup.
+├── pyproject.toml       # Python project configuration and dependencies.
+└── README.md            # This file.
 ```
 
-## Contributing
+## Disclaimer
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project was developed for the Google ADK Hackathon. It is provided for illustrative purposes and is not intended for production use without further testing and hardening.
