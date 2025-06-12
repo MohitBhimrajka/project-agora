@@ -16,7 +16,7 @@ def load_env():
 async def test_eval_full_conversation():
     """Test the agent's basic ability on a few examples."""
     await AgentEvaluator.evaluate(
-        agent_module="rag",
+        agent_module="adk_copilot",
         eval_dataset_file_path_or_dir=str(
             pathlib.Path(__file__).parent / "data/conversation.test.json"
         ),

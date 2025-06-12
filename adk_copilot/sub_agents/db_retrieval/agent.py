@@ -1,6 +1,9 @@
 # FILE: adk_copilot/sub_agents/db_retrieval/agent.py
 
-from google.adk.agents import Agent  # <-- Use the base Agent
+"""Defines the Database Retrieval Agent for searching historical tickets."""
+
+from google.adk.agents import Agent
+
 from ...tools import search_resolved_tickets_db
 
 # This agent's only job is to execute the database search tool.

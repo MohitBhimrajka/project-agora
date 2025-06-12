@@ -1,5 +1,7 @@
 # FILE: adk_copilot/sub_agents/ticket_analysis/agent.py
 
+"""Defines the Ticket Analysis Agent for initial request categorization."""
+
 from google.adk.agents import Agent
 
 # This is a specialized agent that uses a targeted prompt

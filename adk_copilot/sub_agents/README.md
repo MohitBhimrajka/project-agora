@@ -1,27 +1,37 @@
 # Sub-Agents Directory
 
-This directory contains the definitions for all the specialized "worker" agents that are managed by the main `orchestrator_agent`. Each sub-agent is designed to perform a single, specific task within the support ticket resolution workflow.
+This directory contains the specialized "worker" agents managed by the main `orchestrator_agent`. Each sub-agent is a modular component with a single, well-defined responsibility in the developer support workflow. This separation of concerns is a core design principle of the ADK Copilot.
 
-### Agents
+---
 
--   **`ticket_analysis_agent`**:
-    -   **Responsibility:** The first agent in the workflow. It receives the raw user query and performs an initial analysis, structuring the information into a `TicketAnalysis` object (urgency, category, sentiment, summary).
-    -   **Output:** A raw JSON string that is then processed by the `update_ticket_after_analysis` tool.
+## Agent Profiles
 
--   **`knowledge_retrieval_agent`**:
-    -   **Responsibility:** Searches the official ADK documentation, which has been ingested into a Vertex AI RAG Corpus.
-    -   **Technology:** Uses the built-in `VertexAiRagRetrieval` tool from the ADK.
-    -   **Output:** A string containing the most relevant snippets from the documentation.
+### 1. `ticket_analysis_agent`
+*   **Responsibility:** The first agent in the workflow. It performs initial triage on the raw user query.
+*   **Input:** The developer's verbatim request (string).
+*   **Output:** A structured JSON object containing `urgency`, `category`, `sentiment`, and `summary`.
+*   **Key Technology:** `gemini-1.5-flash` with a strict JSON output prompt.
 
--   **`db_retrieval_agent`**:
-    -   **Responsibility:** Searches a BigQuery database of previously resolved tickets to find historical solutions to similar problems.
-    -   **Technology:** Uses the custom `search_resolved_tickets_db` tool.
-    -   **Output:** A string representation of a list of similar tickets found.
+### 2. `knowledge_retrieval_agent`
+*   **Responsibility:** Searches the official ADK documentation for relevant guides, APIs, and best practices.
+*   **Input:** The summary of the issue from the ticket analysis.
+*   **Output:** A string containing the most relevant snippets from the documentation.
+*   **Key Technology:** The ADK's built-in `VertexAiRagRetrieval` tool connected to our RAG corpus.
 
--   **`problem_solver_agent`**:
-    -   **Responsibility:** One of the final "output" agents. It synthesizes all the context gathered by the previous agents (ticket analysis, KB results, DB results) to provide a comprehensive, text-based solution. It is designed for troubleshooting, configuration, and conceptual questions.
-    -   **Output:** A professional, formatted text response for the end-user, including a disclaimer.
+### 3. `db_retrieval_agent`
+*   **Responsibility:** Searches for historical solutions to similar problems in our BigQuery database.
+*   **Input:** The summary of the issue from the ticket analysis.
+*   **Output:** A string representation of similar past tickets found via vector search.
+*   **Key Technology:** A custom tool (`search_resolved_tickets_db`) that executes a `COSINE_DISTANCE` vector search query in Google BigQuery.
 
--   **`code_generator_agent`**:
-    -   **Responsibility:** The other final "output" agent. It is activated when the ticket category is "Code Generation". It synthesizes all context to generate complete, high-quality code examples and applications.
-    -   **Output:** A professional response that includes a full code block, an explanation, and a disclaimer.
+### 4. `problem_solver_agent`
+*   **Responsibility:** The final "synthesis" agent for providing text-based solutions. It is designed for troubleshooting, configuration, and conceptual questions.
+*   **Input:** A comprehensive context block containing the original request, ticket analysis, and all retrieved data (from RAG and BigQuery).
+*   **Output:** A professional, formatted Markdown response for the end-user.
+*   **Key Technology:** `gemini-1.5-pro` with a detailed persona and response-formatting prompt.
+
+### 5. `code_generator_agent`
+*   **Responsibility:** The final "synthesis" agent for generating code. It is activated when the ticket category is "Code Generation".
+*   **Input:** A comprehensive context block, identical to the problem solver's input.
+*   **Output:** A multi-file ADK project, including code blocks, file paths, and setup instructions.
+*   **Key Technology:** `gemini-1.5-pro` with a two-step (propose, then code) reasoning prompt to ensure accuracy.
