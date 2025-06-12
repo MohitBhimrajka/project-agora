@@ -1,36 +1,41 @@
-# ADK Copilot: A Reusable Framework for Multi-Agent AI Assistants
+# ADK Copilot: A Reusable Multi-Agent Framework built with Google ADK
 
 ![Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)
 ![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)
 
-ADK Copilot is a sophisticated multi-agent AI assistant, built on a powerful, reusable framework designed with the Google Agent Development Kit. This project automates the complex process of expert assistance, demonstrating a scalable architecture where a team of AI specialists collaborate to solve problems.
+This repository showcases a powerful, reusable framework built from the ground up with the **Google Agent Development Kit (ADK)**. It demonstrates how to leverage the ADK to architect and orchestrate a sophisticated team of AI specialists that can automate complex processes.
 
-While this implementation serves as an expert on the ADK, its core is a **domain-agnostic framework**. It is designed to be easily adapted, allowing any developer to stand up their own specialized AI assistant by simply changing the knowledge sources and specialist agent prompts.
+The primary implementation, **ADK Copilot**, serves as an expert assistant for the ADK itself. However, the core of this project is a **domain-agnostic framework** that you can adapt to create your own specialized AI assistants, all while using the ADK's robust orchestration capabilities.
 
-**[➡️ Watch the Demo Video Here](https://your-video-link.com)**
-
+<!-- **[➡️ Watch the Demo Video Here](https://your-video-link.com)** -->
 ---
 
-## A Framework First: The Power of Reusability
+## The ADK-Powered Framework
 
-This project began with a simple goal: to build a tool that could solve my own challenges while learning the new Google ADK. But in solving this specific problem, a more powerful concept emerged: a **blueprint for collaborative AI systems.**
+This project's innovation lies in using the ADK not just to build a single agent, but to create a **blueprint for collaborative AI systems**. The framework provides a pre-built, stateful orchestration engine, allowing you to focus on defining your agents' unique skills rather than the complex mechanics of their interaction.
 
-The true innovation here is not just a single copilot, but a plug-and-play framework that allows you to assemble and orchestrate a team of AI agents. The heavy lifting—the stateful orchestration, the dual-source knowledge retrieval, the automated cloud infrastructure setup—is already done.
+This architecture is designed for extension. You can create your own powerful assistant by:
+1.  **Defining Agent Expertise:** Update the prompts in the modular sub-agents (`problem_solver`, `code_generator`, etc.) to give them new specializations.
+2.  **Providing Custom Knowledge:** Swap the included documentation and data for your own, and the automated setup scripts will create a new knowledge base for your agents.
+3.  **Expanding the Team:** The ADK's design makes it simple to add new specialist agents and register them with the central orchestrator.
 
-This means you can fork this repository and create your own powerful assistant:
-*   A **Medical Research Assistant** that synthesizes clinical trial data.
-*   A **Financial Analyst Bot** that interprets market reports.
-*   A **Marketing Content Strategist** that generates campaign ideas.
+## Key Features: How the ADK Enables an Advanced Architecture
 
-### How to Build Your Own Assistant
+### A Modular Team of AI Specialists, Enabled by ADK
+The framework's core is an `orchestrator_agent` that manages a team of sub-agents. This pattern, made clean and simple by the ADK's `AgentTool`, allows for a clear separation of concerns, making the system easy to extend and maintain.
 
-Adapting this framework to a new domain is a straightforward process focused on three key areas:
+### Supercharging ADK Agents with Vertex AI
+To give our ADK agents powerful tools, we integrated them with Google Cloud's best-in-class services:
+*   **The Librarian Agent:** This ADK agent wields the **Vertex AI RAG Engine**, allowing it to perform true semantic search across a vast corpus of documents.
+*   **The Veteran Agent:** This ADK agent connects to **BigQuery**, using its native **vector search** capabilities to recall solutions from a historical database, giving the system a powerful, experience-based memory.
 
-1.  **Change the Knowledge (`data/`):** Replace the contents of `data/knowledge_base` with your own documents and modify `scripts/create_mock_db.py` to generate examples from your domain. The automated scripts will handle the rest.
-2.  **Define the Specialists (`adk_copilot/sub_agents/`):** The framework includes a `problem_solver_agent` and a `code_generator_agent`. You can easily rename these (e.g., to `report_writer_agent`) and update their prompts in their respective `agent.py` files to grant them a new expertise.
-3.  **Expand the Team:** Add new specialist agents to the `sub_agents` directory and simply register them with the `orchestrator_agent` in `adk_copilot/agent.py`. The orchestration logic will seamlessly integrate them.
+### Seamless Deployment for ADK Applications
+The framework includes a complete CI/CD-ready setup for your ADK applications.
+*   **For Development:** A single command deploys the system to **Cloud Run**, providing a web UI for rapid testing.
+*   **For Production:** A second script provides a path to a managed, scalable endpoint on the **Vertex AI Agent Engine**.
 
-Our one-command `setup_environment.sh` script makes this entire process incredibly efficient, provisioning your custom backend automatically.
+### One-Command Setup for Your ADK Environment
+To accelerate development, a master `setup_environment.sh` script automates the entire backend creation on Google Cloud, saving hours of manual configuration of data sources for your agents.
 
 ## The ADK Copilot: An Example in Action
 
@@ -232,4 +237,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
