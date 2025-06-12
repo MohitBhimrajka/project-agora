@@ -1,4 +1,4 @@
-# Production dependencies
+# Production dependencies for docker build
 google-adk>=1.0.0
 google-cloud-aiplatform[adk,agent-engines,evaluation]>=1.93.0
 pydantic>=2.11.3

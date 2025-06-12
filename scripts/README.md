@@ -1,8 +1,10 @@
 # Scripts Directory
 
-This directory contains all the automation and setup scripts required to prepare the environment and data backends for the ADK Copilot agent.
+This directory contains all the automation scripts required to prepare the **generic backend infrastructure** for the multi-agent framework.
 
-The primary way to use these scripts is through the main `setup_environment.sh` script in the project root, which runs them in the correct order.
+The primary way to use these scripts is through the main `setup_environment.sh` script in the project root. This script runs them in the correct order to provision a complete cloud environment for your custom agent, saving you hours of manual setup. No matter what domain you adapt the framework for, these scripts will handle the backend.
+
+---
 
 ### Scripts
 

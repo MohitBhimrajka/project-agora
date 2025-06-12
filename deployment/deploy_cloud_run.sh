@@ -58,9 +58,9 @@ if [ ${#missing_vars[@]} -ne 0 ]; then
 fi
 
 # Set default values for optional variables
-SERVICE_NAME=${SERVICE_NAME:-"adk-copilot"}
-APP_NAME=${APP_NAME:-"adk_copilot"}
-AGENT_PATH=${AGENT_PATH:-"adk_copilot"}
+SERVICE_NAME=${SERVICE_NAME:-"$DEFAULT_SERVICE_NAME"}
+APP_NAME=${APP_NAME:-"$DEFAULT_APP_NAME"}
+AGENT_PATH=${AGENT_PATH:-"$DEFAULT_AGENT_PATH"}
 
 echo -e "${GREEN}✅ Environment variables loaded:${NC}"
 echo "  📍 Project: $GOOGLE_CLOUD_PROJECT"

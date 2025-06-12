@@ -1,54 +1,74 @@
-# ADK Copilot
+# ADK Copilot: A Reusable Framework for Multi-Agent AI Assistants
 
-An intelligent AI copilot and expert assistant for developers using the Google Agent Development Kit (ADK). Built with a sophisticated multi-agent architecture, ADK Copilot helps developers solve problems, generate code, and navigate the complexities of building applications with the Google ADK.
+![Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)
+![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)
+
+ADK Copilot is a sophisticated multi-agent AI assistant, built on a powerful, reusable framework designed with the Google Agent Development Kit. This project automates the complex process of expert assistance, demonstrating a scalable architecture where a team of AI specialists collaborate to solve problems.
+
+While this implementation serves as an expert on the ADK, its core is a **domain-agnostic framework**. It is designed to be easily adapted, allowing any developer to stand up their own specialized AI assistant by simply changing the knowledge sources and specialist agent prompts.
 
 **[➡️ Watch the Demo Video Here](https://your-video-link.com)**
 
 ---
 
-## Overview
+## A Framework First: The Power of Reusability
 
-ADK Copilot is designed specifically for developers working with the Google Agent Development Kit. It combines the power of multiple specialized AI agents to provide comprehensive assistance—from troubleshooting deployment issues to generating complete, production-ready code examples. Whether you're stuck on a technical problem or need help building a new agent, ADK Copilot is your intelligent pair programming partner.
+This project began with a simple goal: to build a tool that could solve my own challenges while learning the new Google ADK. But in solving this specific problem, a more powerful concept emerged: a **blueprint for collaborative AI systems.**
 
-## Agent Architecture
+The true innovation here is not just a single copilot, but a plug-and-play framework that allows you to assemble and orchestrate a team of AI agents. The heavy lifting—the stateful orchestration, the dual-source knowledge retrieval, the automated cloud infrastructure setup—is already done.
+
+This means you can fork this repository and create your own powerful assistant:
+*   A **Medical Research Assistant** that synthesizes clinical trial data.
+*   A **Financial Analyst Bot** that interprets market reports.
+*   A **Marketing Content Strategist** that generates campaign ideas.
+
+### How to Build Your Own Assistant
+
+Adapting this framework to a new domain is a straightforward process focused on three key areas:
+
+1.  **Change the Knowledge (`data/`):** Replace the contents of `data/knowledge_base` with your own documents and modify `scripts/create_mock_db.py` to generate examples from your domain. The automated scripts will handle the rest.
+2.  **Define the Specialists (`adk_copilot/sub_agents/`):** The framework includes a `problem_solver_agent` and a `code_generator_agent`. You can easily rename these (e.g., to `report_writer_agent`) and update their prompts in their respective `agent.py` files to grant them a new expertise.
+3.  **Expand the Team:** Add new specialist agents to the `sub_agents` directory and simply register them with the `orchestrator_agent` in `adk_copilot/agent.py`. The orchestration logic will seamlessly integrate them.
+
+Our one-command `setup_environment.sh` script makes this entire process incredibly efficient, provisioning your custom backend automatically.
+
+## The ADK Copilot: An Example in Action
+
+Our pre-configured implementation demonstrates this framework's power by tackling the complex process of developer support for the Google Agent Development Kit.
+
+### Agent Architecture
 
 ![ADK Copilot Architecture](architecture_diagram.png)
 
-The system is orchestrated by a main `orchestrator_agent` which delegates tasks to the following specialists:
+The system is orchestrated by a main `orchestrator_agent` which delegates tasks to the following pre-configured specialists:
+*   **`ticket_analysis_agent`**: Analyzes the initial developer request.
+*   **`knowledge_retrieval_agent`**: Searches the ADK documentation via Vertex AI RAG.
+*   **`db_retrieval_agent`**: Searches a BigQuery DB of historical ADK issues.
+*   **`problem_solver_agent`**: Synthesizes context to solve technical problems.
+*   **`code_generator_agent`**: Generates complete, multi-file ADK code.
 
-1.  **`ticket_analysis_agent`**: Analyzes the initial developer request and enriches it with structured data (urgency, category, complexity, summary).
-2.  **`knowledge_retrieval_agent`**: Performs a semantic search against the official ADK documentation (ingested into a Vertex AI RAG Corpus) to find relevant guides, APIs, and best practices.
-3.  **`db_retrieval_agent`**: Searches a BigQuery database of historical developer issues to find similar past problems and their resolutions.
-4.  **`problem_solver_agent`**: Synthesizes all gathered context to provide detailed, step-by-step solutions for deployment, configuration, or development challenges.
-5.  **`code_generator_agent`**: Generates complete, high-quality code examples, agents, and applications when developers need implementation assistance.
+### Key Features
 
-## Key Features
+-   **Reusable Multi-Agent Framework:** A robust, state-driven architecture that can be easily adapted to any knowledge domain.
+-   **Stateful, Multi-Turn Workflow:** Manages a `SupportTicket` state object to ensure a logical, fault-tolerant progression from problem to solution.
+-   **Dual-Source Knowledge Retrieval:** Combines real-time document search (RAG) with historical data lookup (BigQuery vector search) for comprehensive context.
+-   **Fully Automated Cloud Setup:** A single shell script (`setup_environment.sh`) handles the creation of all necessary data, Google Cloud Storage, BigQuery tables, and the Vertex AI RAG Corpus, making setup seamless.
+-   **Production-Ready Deployment Options:** Includes scripts to deploy the system to both Google Cloud Run (for development) and the scalable Vertex AI Agent Engine (for production).
 
--   **Multi-Agent Architecture:** An Orchestrator agent manages a team of five specialist sub-agents, each with expertise in different aspects of ADK development.
--   **Intelligent Problem Solving:** Analyzes deployment issues, configuration problems, and technical errors with context-aware solutions.
--   **Advanced Code Generation:** Creates complete, annotated agent implementations, custom tools, and application architectures tailored to your specific requirements.
--   **RAG-Powered Knowledge Base:** Utilizes Vertex AI RAG to search a comprehensive, auto-generated knowledge base of the official Google ADK documentation.
--   **Historical Solutions Database:** Connects to a BigQuery database to find solutions from previously resolved developer issues, learning from past problems.
--   **Stateful, Multi-Turn Workflow:** Manages conversation state to ensure logical progression from problem identification to solution implementation.
--   **Interactive Development Process:** For complex requests, the system proposes an architecture or approach before generating code, improving accuracy and developer satisfaction.
--   **Automated Environment Setup:** A single script handles the creation of all necessary data, cloud storage, BigQuery tables, and the RAG corpus, making setup seamless.
-
-> **Note on Knowledge Base Content:** The knowledge base used by this agent is generated by scraping the publicly available [Google ADK documentation website](https://google.github.io/adk-docs/). All content rights belong to the original authors. This project uses the content for demonstration and educational purposes in accordance with fair use principles. The scraped data is provided as-is and may not be perfectly formatted or up-to-date.
+> **Note on Included Knowledge Base:** The knowledge base for the ADK Copilot implementation is generated by scraping the publicly available [Google ADK documentation website](https://google.github.io/adk-docs/). All content rights belong to the original authors.
 
 ## Technologies Used
 
-This project is built on a modern, cloud-native stack, leveraging the power of Google Cloud and open-source AI frameworks:
-
 *   **Core Framework:** Google Agent Development Kit (ADK)
 *   **Language:** Python 3.11+
-*   **AI Models:** Google Gemini 2.5 Pro & 2.0 Flash (via Vertex AI)
+*   **AI Models:** Google Gemini 1.5 Pro & 1.5 Flash (via Vertex AI)
 *   **Data & Retrieval:**
     *   Vertex AI RAG (Retrieval-Augmented Generation)
     *   Google BigQuery (for vector search on historical data)
     *   Google Cloud Storage (for RAG document storage)
 *   **Deployment:**
-    *   Vertex AI Agent Engine (for production-style deployment)
-    *   Google Cloud Run (for dev/demo deployment with UI)
+    *   Vertex AI Agent Engine
+    *   Google Cloud Run
 *   **Tooling:** Poetry, GCloud SDK
 
 ## Setup and Installation
@@ -198,20 +218,18 @@ adk-copilot/
 │   └── resolved_tickets.csv       # Mock historical support tickets
 ├── deployment/                    # Deployment scripts and configurations
 │   ├── README.md                  # Deployment documentation
-│   ├── deploy_agent_engine.py    # Deploy to Vertex AI Agent Engine
-│   └── deploy_cloud_run.sh       # Deploy to Cloud Run with web UI
-├── eval/                          # Evaluation and testing
-│   ├── test_eval.py              # Evaluation test script
-│   └── data/                     # Test data
-│       └── conversation.test.json # Sample conversation for testing
-├── dist/                          # Build artifacts (created by poetry build)
-├── setup_environment.sh          # Main setup script (runs all setup steps)
-├── pyproject.toml                # Python project configuration and dependencies
-├── poetry.lock                   # Locked dependency versions
-├── README.md                     # This file - project documentation
-├── LICENSE                       # Project license
-└── .gitignore                    # Git ignore patterns
+│   ├── deploy_cloud_run.sh        # Cloud Run deployment script
+│   └── deploy_vertex_agents.sh    # Vertex AI deployment script
+├── setup_environment.sh           # Automated environment setup script
+├── pyproject.toml                 # Poetry configuration and dependencies
+├── .env.example                   # Example environment variables file
+└── README.md                      # This file
 ```
 
-## Disclaimer
-This project was developed for the Agent Development Kit Hackathon with Google Cloud. It is intended for demonstration and educational purposes and is not an official Google product. You are solely responsible for testing, validating, and securing any code or solutions before use in a production environment.
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
