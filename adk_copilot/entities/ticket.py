@@ -38,7 +38,10 @@ class SupportTicket(BaseModel):
     )
     status: str = Field(
         default="New",
-        description="The current status of the request in its lifecycle (e.g., New, Analyzing, Pending Solution, Resolved).",
+        description=(
+            "The current status of the request in its lifecycle (e.g., New, "
+            "Analyzing, AwaitingContextConfirmation, Pending Solution, AwaitingPlanApproval, Resolved)."
+        ),
     )
     request: str = Field(
         description="The original, verbatim request from the developer."
@@ -55,6 +58,14 @@ class SupportTicket(BaseModel):
     suggested_solution: Optional[str] = Field(
         default=None,
         description="The final proposed solution to be sent to the developer.",
+    )
+
+    # Add these two new fields to store retrieval results
+    retrieved_kb_docs: Optional[str] = Field(
+        default=None, description="Raw results from the knowledge base search."
+    )
+    retrieved_db_tickets: Optional[str] = Field(
+        default=None, description="Raw results from the historical ticket search."
     )
 
     # History and logging

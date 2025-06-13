@@ -122,6 +122,32 @@ def update_ticket_after_analysis(analysis_json: str, tool_context: ToolContext) 
         return error_msg
 
 
+def update_ticket_after_retrieval(
+    kb_results: str, db_results: str, tool_context: ToolContext
+) -> str:
+    """Updates the ticket after knowledge retrieval and sets status to AwaitingContextConfirmation."""
+    try:
+        ticket_dict = json.loads(tool_context.state.get("ticket", "{}"))
+        if not ticket_dict:
+            return "Error: Ticket not found in state."
+
+        # Store the raw results and update status
+        ticket_dict["retrieved_kb_docs"] = kb_results
+        ticket_dict["retrieved_db_tickets"] = db_results
+        ticket_dict["status"] = "AwaitingContextConfirmation"
+
+        updated_ticket_json = json.dumps(ticket_dict, indent=2)
+        tool_context.state["ticket"] = updated_ticket_json
+
+        print("INFO: Ticket status updated to 'AwaitingContextConfirmation'.")
+        return updated_ticket_json
+
+    except (json.JSONDecodeError, KeyError) as e:
+        error_msg = f"Error updating ticket after retrieval: {e}"
+        print(f"ERROR: {error_msg}")
+        return error_msg
+
+
 async def generate_diagram_from_mermaid(mermaid_code: str, file_name: str) -> str:
     """
     Renders Mermaid diagram syntax into a PNG image, uploads it to Google Cloud
@@ -138,6 +164,11 @@ async def generate_diagram_from_mermaid(mermaid_code: str, file_name: str) -> st
     if not bucket_name:
         return "Error: GOOGLE_CLOUD_STORAGE_BUCKET environment variable not set."
 
+    # --- FIX 1: Un-escape the mermaid code ---
+    # Convert escaped newlines and quotes from the JSON string back to their literal versions
+    processed_mermaid_code = mermaid_code.replace('\\n', '\n').replace('\\"', '"')
+    # --- END OF FIX 1 ---
+
     html_template = f"""
     <!DOCTYPE html>
     <html>
@@ -146,33 +177,46 @@ async def generate_diagram_from_mermaid(mermaid_code: str, file_name: str) -> st
         <script>mermaid.initialize({{ startOnLoad: true }});</script>
     </head>
     <body>
-        <div class="mermaid">{mermaid_code}</div>
+        <div class="mermaid">{processed_mermaid_code}</div>
     </body>
     </html>
     """
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        page = await browser.new_page()
-        await page.set_content(html_template)
+        try:
+            browser = await p.chromium.launch()
+            page = await browser.new_page()
+            await page.set_content(html_template)
 
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
-            diagram_element = page.locator(".mermaid")
-            await diagram_element.screenshot(path=tmp_file.name)
-            tmp_file_path = tmp_file.name
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
+                diagram_element = page.locator(".mermaid")
+                await diagram_element.screenshot(path=tmp_file.name)
+                tmp_file_path = tmp_file.name
 
-        await browser.close()
+            await browser.close()
+        except Exception as e:
+            return f"Error during Playwright rendering: {e}"
 
     try:
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
-        destination_blob_name = f"diagrams/{file_name}.png"
+
+        # --- FIX 2: Correct the filename logic ---
+        # Get the base name of the file, stripping any extension
+        base_name, _ = os.path.splitext(file_name)
+        # Construct the destination path with a single, correct .png extension
+        destination_blob_name = f"diagrams/{base_name}.png"
+        # --- END OF FIX 2 ---
+        
         blob = bucket.blob(destination_blob_name)
 
         blob.upload_from_filename(tmp_file_path)
         os.remove(tmp_file_path)
 
         print(f"INFO: Diagram uploaded to gs://{bucket_name}/{destination_blob_name}")
+        # Make the blob public to get a URL.
+        # Note: In production, you would use signed URLs for security.
+        blob.make_public()
         return blob.public_url
     except Exception as e:
         return f"Error: Failed to upload diagram to GCS. Details: {e}"

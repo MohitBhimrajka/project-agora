@@ -21,6 +21,7 @@ from .sub_agents.code_reviewer.agent import code_reviewer_agent
 from .tools.tools import (
     create_ticket,
     update_ticket_after_analysis,
+    update_ticket_after_retrieval,
     generate_diagram_from_mermaid,
 )
 
@@ -40,6 +41,7 @@ orchestrator_agent = Agent(
         # List ALL possible tools and sub-agents the orchestrator can call
         create_ticket,
         update_ticket_after_analysis,
+        update_ticket_after_retrieval,
         generate_diagram_from_mermaid,
         AgentTool(ticket_analysis_agent),
         AgentTool(knowledge_retrieval_agent),
