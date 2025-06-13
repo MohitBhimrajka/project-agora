@@ -46,7 +46,8 @@ Every generated project MUST adhere to the following directory structure. `your_
         logger = logging.getLogger(__name__)
 
         def my_tool(param: str) -> str:
-            logger.info(f"Tool 'my_tool' called with param: {{param}}")
+            # Use .format() to avoid conflicts with ADK's prompt templating
+            logger.info("Tool 'my_tool' called with param: {}".format(param))
             # ... tool logic ...
             return "result"
         ```
@@ -90,20 +91,17 @@ Every generated project MUST adhere to the following directory structure. `your_
 ### Mandatory "Next Steps" Section
 Your final explanation MUST include a "Next Steps" section that instructs the user on how to run their new agent using ONLY the ADK CLI tools. The section must look like this example:
 
-```
-### Next Steps
+## Next Steps
 
-1.  Save the generated files to your local machine, maintaining the directory structure.
-2.  In your terminal, navigate to the project root (where `pyproject.toml` is) and run `poetry install` to set up the dependencies.
-3.  Run the agent from your terminal using the ADK CLI:
-    - For a command-line interface: `adk run {{your_agent_name}}`
-    - For the web interface: `adk web` (and select `{{your_agent_name}}` from the dropdown)
+1. Save the generated files to your local machine, maintaining the directory structure.
+
+2. In your terminal, navigate to the project root (where pyproject.toml is) and run `poetry install` to set up the dependencies.
+
+3. Run the agent from your terminal using the ADK CLI:
+   - For a command-line interface: `adk run <your_agent_name>`
+   - For the web interface: `adk web` (and select `<your_agent_name>` from the dropdown)
 
 ### Mermaid Syntax Rules
-- Node text containing special characters (like `[]()""{}`) **MUST** be enclosed in double quotes.
-- Link text containing special characters **MUST** use HTML character codes to escape them.
-  - For `"` use `#quot;`
-  - For `{` use `#123;`
-  - For `}` use `#125;`
-- **Correct Example:** `A -- "Calls tool with arg: #quot;foo#quot;" --> B`
-- **Incorrect Example:** `A -- "Calls tool with arg: "foo"" --> B`
+- **Keep it Simple:** Use simple, single-word identifiers for nodes (e.g., `UserRequest`, `Orchestrator`, `GreetTool`).
+- **Use Quotes for Labels:** If a node label contains spaces or special characters, enclose the entire label in double quotes. Example: `A["This is a label"] --> B`.
+- **Avoid Complex Labels:** Do not put entire sentences or code snippets inside node labels. The diagram should show the flow, and the "plan" text will provide the details.
