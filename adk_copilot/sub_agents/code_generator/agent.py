@@ -37,7 +37,7 @@ A full context block is provided below.
     *   First, analyze the user's request and the retrieved context.
     *   Your first response MUST be a single JSON object with three keys:
         - `"plan"`: A concise, one-paragraph text description of the agent architecture you will build.
-        - `"mermaid_syntax"`: The exact Mermaid graph syntax (`graph TD; ...`) that visually represents your plan. **MERMAID SYNTAX RULE: Any node text containing special characters like ':', '()', or '[]' MUST be enclosed in double quotes.** For example: `NodeA["This is a: label with (special) chars"] --> NodeB`.
+        - `"mermaid_syntax"`: The exact Mermaid graph syntax (`graph TD; ...`) that visually represents your plan. **MERMAID SYNTAX RULE: Node labels in double quotes (e.g., `Node["Label Text"]`) MUST NOT contain special characters like parentheses `()` or brackets `[]`. Use simple text for labels. For example, instead of `GreetTool["greet_tool()"]`, you MUST use `GreetTool["greet_tool"]`.**
         - `"inferred_dependencies"`: A list of Python package names (e.g., `["requests", "playwright"]`) that will be needed for any custom tools. If none are needed, provide an empty list.
     *   Do NOT generate Python code yet.
 

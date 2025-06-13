@@ -1,8 +1,10 @@
-# ADK Solutions Architecture: Style Guide & Constraints
+# ADK Solutions Architecture: Style Guide & Best Practices
 
-**Objective:** Generate a complete, high-quality, multi-file Python application using the Google Agent Development Kit (ADK) that can be run directly by the ADK CLI.
+**Objective:** Generate a complete, high-quality, multi-file Python application using the Google Agent Development Kit (ADK) that is robust, secure, and ready for use.
 
-### Mandatory Project Structure
+---
+
+### 1. Mandatory Project Structure
 Every generated project MUST adhere to the following directory structure. `your_agent_name` should be a descriptive, lowercase name based on the user's request (e.g., `weather_agent`).
 
 ```
@@ -17,91 +19,133 @@ Every generated project MUST adhere to the following directory structure. `your_
     └── tools.py
 ```
 
-### File Content Requirements
+---
 
-1.  **`pyproject.toml`:**
-    *   Must include project metadata and `google-adk` as a dependency.
+### 2. Code Generation Best Practices
 
-2.  **`your_agent_name/__init__.py`:**
-    *   Must make the package runnable by the ADK CLI.
-    *   The entire content of this file MUST be: `from .agent import root_agent`
+#### 2.1. ADK Import Paths (Mandatory)
+You MUST use the full, explicit import paths for all ADK components. Do NOT use relative or generic top-level imports.
 
-3.  **`your_agent_name/agent.py`:**
-    *   This is the main file. It MUST define the primary agent instance and assign it to a variable named exactly `root_agent`.
+-   **For Agents:** `from google.adk.agents import Agent, LlmAgent`
+-   **For Tools:** `from google.adk.tools import tool`
+-   **For AgentTools:** `from google.adk.tools.agent_tool import AgentTool`
+-   **For Tool Context:** `from google.adk.tools import ToolContext`
+-   **For Callbacks:** `from google.adk.agents.callback_context import CallbackContext`
 
-4.  **`your_agent_name/prompts.py`:**
-    *   Must contain the instruction prompts for the agent(s).
+#### 2.2. Tool Error Handling (Mandatory)
+All custom tools that perform I/O operations (file access, API calls) MUST include robust error handling using `try...except` blocks.
 
-5.  **`your_agent_name/tools.py`:**
-    *   Must contain the definitions for any custom Python tools.
+-   **Log errors** using `logging.error()`.
+-   **Return user-friendly error messages** as a string. Do NOT let the tool crash.
 
-### Code Quality & Documentation Requirements
+**Example:**
+```python
+import logging
+import requests
 
-6.  **Tool Logging (Mandatory):**
-    *   Every custom tool function in `tools.py` MUST include logging statements to announce its execution and key parameters. This is critical for debugging.
-    *   Use Python's built-in `logging` module.
-    *   **Example:**
-        ```python
-        import logging
-        logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-        def my_tool(param: str) -> str:
-            # Use .format() to avoid conflicts with ADK's prompt templating
-            logger.info("Tool 'my_tool' called with param: {}".format(param))
-            # ... tool logic ...
-            return "result"
-        ```
+def call_external_api(url: str) -> str:
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        error_msg = "API call failed: {}".format(e)
+        logger.error(error_msg)
+        return "Error: Could not retrieve data. {}".format(error_msg)
+```
 
-7.  **Descriptive Agent Prompts (Mandatory):**
-    *   The instruction prompt in `prompts.py` must not be generic. It must clearly state the agent's persona, its primary goal, and explicitly mention each tool it can use and under what circumstances.
-    *   **Good Example:** `"You are a helpful weather assistant. When a user asks for the weather in a specific city, you MUST use the 'get_weather' tool to find the information."`
-    *   **Bad Example:** `"You are an agent. Use your tools."`
+#### 2.3. API Keys & Secrets Management (Mandatory)
+-   Tools MUST NOT contain hardcoded API keys, passwords, or other secrets.
+-   Secrets MUST be loaded from environment variables using `os.getenv()`.
+-   The tool MUST handle cases where the environment variable is not set.
 
-8.  **Helpful Code Comments (Mandatory):**
-    *   Add comments to `agent.py` to explain the key parts of the agent's definition, such as why a particular model was chosen or the purpose of the `tools` list.
+**Example:**
+```python
+import os
+import logging
 
-9.  **`README.md` (Mandatory):**
-    *   You MUST generate a helpful `README.md` file.
-    *   It must include the following sections:
-        *   A brief overview of the agent's purpose.
-        *   Instructions on how to run `poetry install`.
-        *   The exact `adk run` and `adk web` commands to execute the agent.
+logger = logging.getLogger(__name__)
 
-10. **`config.py` (Recommended for agents with configurable settings):**
-    *   For settings like `model` names, define them in `config.py`.
-    *   Use a Pydantic `BaseModel` or a simple Python class for structure.
-    *   **Example `config.py`:**
-        ```python
-        class AgentConfig:
-            MODEL_NAME = "gemini-1.5-pro-preview-0521"
-        ```
-    *   **Example `agent.py` usage:**
-        ```python
-        from .config import AgentConfig
-        
-        root_agent = Agent(model=AgentConfig.MODEL_NAME, ...)
-        ```
+def get_weather_data(city: str) -> str:
+    api_key = os.getenv("WEATHER_API_KEY")
+    if not api_key:
+        error_msg = "WEATHER_API_KEY environment variable not set."
+        logger.error(error_msg)
+        return "Error: Service is not configured. {}".format(error_msg)
+    # ... logic to use the api_key ...
+```
 
-### FORBIDDEN PATTERNS
+#### 2.4. Tool Logging (Mandatory)
+Every custom tool function in `tools.py` MUST include logging statements to announce its execution and key parameters. This is critical for debugging.
 
--   **You MUST NOT generate a `main.py` file.**
--   **You MUST NOT use `if __name__ == '__main__':` blocks.**
--   **You MUST NOT use `asyncio.run()` or `runner.run_user_message()`.** The ADK CLI handles all execution.
+-   Use Python's built-in `logging` module.
+-   Use `.format()` to avoid conflicts with ADK's prompt templating.
 
-### Mandatory "Next Steps" Section
-Your final explanation MUST include a "Next Steps" section that instructs the user on how to run their new agent using ONLY the ADK CLI tools. The section must look like this example:
+**Example:**
+```python
+import logging
+logger = logging.getLogger(__name__)
+
+def my_tool(param: str) -> str:
+    logger.info("Tool 'my_tool' called with param: {}".format(param))
+    # ... tool logic ...
+    return "result"
+```
+
+#### 2.5. Security: Input Sanitization
+Tools that construct file paths or system commands MUST sanitize inputs to prevent security vulnerabilities.
+
+-   Use `os.path.join()` to construct file paths safely.
+-   NEVER pass raw user input directly to shell commands or SQL queries.
+
+**Example (Safe File Path):**
+```python
+import os
+
+def read_project_file(filename: str) -> str:
+    # Sanitize filename to prevent path traversal (e.g., '../../etc/passwd')
+    safe_filename = os.path.basename(filename)
+    base_dir = "/app/data"
+    safe_path = os.path.join(base_dir, safe_filename)
+    # ... rest of the logic ...
+```
+
+---
+
+### 3. Core ADK Rules
+
+#### 3.1. File Content Requirements
+-   **`pyproject.toml`:** Must include project metadata and `google-adk` as a dependency.
+-   **`your_agent_name/__init__.py`:** Must contain exactly: `from .agent import root_agent`
+-   **`your_agent_name/agent.py`:** Must define the `root_agent`.
+-   **`your_agent_name/prompts.py`:** Must contain agent instruction prompts.
+-   **`your_agent_name/tools.py`:** Must contain custom Python tools.
+-   **`README.md`:** Must be generated with an overview and `adk run`/`adk web` commands.
+
+#### 3.2. FORBIDDEN PATTERNS
+-   You MUST NOT generate a `main.py` file.
+-   You MUST NOT use `if __name__ == '__main__':` blocks.
+-   You MUST NOT use `asyncio.run()` or `runner.run_user_message()`.
+
+---
+
+### 4. Final Output Formatting
+
+#### 4.1. Mandatory "Next Steps" Section
+Your final explanation MUST include a "Next Steps" section formatted exactly like this:
 
 ## Next Steps
 
 1. Save the generated files to your local machine, maintaining the directory structure.
-
 2. In your terminal, navigate to the project root (where pyproject.toml is) and run `poetry install` to set up the dependencies.
-
 3. Run the agent from your terminal using the ADK CLI:
    - For a command-line interface: `adk run <your_agent_name>`
    - For the web interface: `adk web` (and select `<your_agent_name>` from the dropdown)
 
-### Mermaid Syntax Rules
+#### 4.2. Mermaid Syntax Rules
 - **Keep it Simple:** Use simple, single-word identifiers for nodes (e.g., `UserRequest`, `Orchestrator`, `GreetTool`).
-- **Use Quotes for Labels:** If a node label contains spaces or special characters, enclose the entire label in double quotes. Example: `A["This is a label"] --> B`.
-- **Avoid Complex Labels:** Do not put entire sentences or code snippets inside node labels. The diagram should show the flow, and the "plan" text will provide the details.
+- **Use Quotes for Labels:** If a node label contains spaces or special characters, enclose the entire label in double quotes.
+- **Avoid Parentheses/Brackets in Labels:** Node labels MUST NOT contain `()` or `[]`. Use simple text. Example: `MyTool["my_tool_function"]`.
+- **No HTML Tags:** Node labels MUST NOT contain any HTML tags, such as `<br>` or `<br/>`. Keep labels as plain text.
