@@ -2,10 +2,13 @@
 
 import json
 import os
+import tempfile
 import uuid
 
 from google.adk.tools import ToolContext
 from google.cloud import bigquery
+from google.cloud import storage
+from playwright.async_api import async_playwright
 from vertexai.language_models import TextEmbeddingModel
 
 from ..entities.ticket import SupportTicket, TicketAnalysis
@@ -117,3 +120,59 @@ def update_ticket_after_analysis(analysis_json: str, tool_context: ToolContext) 
         error_msg = f"Error processing analysis and updating request: {e}"
         print(f"ERROR: {error_msg}")
         return error_msg
+
+
+async def generate_diagram_from_mermaid(mermaid_code: str, file_name: str) -> str:
+    """
+    Renders Mermaid diagram syntax into a PNG image, uploads it to Google Cloud
+    Storage, and returns its public URL. This is an async function.
+
+    Args:
+        mermaid_code: The Mermaid syntax string to be rendered.
+        file_name: The desired base name for the output file (e.g., 'architecture_plan').
+
+    Returns:
+        The public URL of the generated diagram image in GCS, or an error string.
+    """
+    bucket_name = os.getenv("GOOGLE_CLOUD_STORAGE_BUCKET")
+    if not bucket_name:
+        return "Error: GOOGLE_CLOUD_STORAGE_BUCKET environment variable not set."
+
+    html_template = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({{ startOnLoad: true }});</script>
+    </head>
+    <body>
+        <div class="mermaid">{mermaid_code}</div>
+    </body>
+    </html>
+    """
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.set_content(html_template)
+
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
+            diagram_element = page.locator(".mermaid")
+            await diagram_element.screenshot(path=tmp_file.name)
+            tmp_file_path = tmp_file.name
+
+        await browser.close()
+
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        destination_blob_name = f"diagrams/{file_name}.png"
+        blob = bucket.blob(destination_blob_name)
+
+        blob.upload_from_filename(tmp_file_path)
+        os.remove(tmp_file_path)
+
+        print(f"INFO: Diagram uploaded to gs://{bucket_name}/{destination_blob_name}")
+        return blob.public_url
+    except Exception as e:
+        return f"Error: Failed to upload diagram to GCS. Details: {e}"

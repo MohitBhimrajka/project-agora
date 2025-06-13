@@ -120,6 +120,7 @@ application_default_credentials.json
 logs/
 *.out
 *.err
+logs.txt
 
 # --- Temporary files ---
 tmp/
