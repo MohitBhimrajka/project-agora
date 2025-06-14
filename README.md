@@ -16,7 +16,7 @@ This is not just a chatbot. It is a blueprint for building autonomous, collabora
 ---
 
 ![ADK Copilot Architecture v2](architecture_diagram_v2.png)
-_The new architecture: An ADK Orchestrator managing a full development lifecycle with a code review loop._
+_The architecture: An ADK Orchestrator managing a full development lifecycle with a code review loop._
 
 ## The ADK Copilot: An Example in Action
 
