@@ -27,9 +27,12 @@ Deploy the agent as a managed reasoning engine using `deploy_agent_engine.py`. T
 
 #### Prerequisites
 
-Before running the deployment script, ensure you have:
-1.  Completed all steps in the main project `README.md`, including running the `setup_environment.sh` script. This ensures your `.env` file is fully populated with the `RAG_CORPUS_NAME` and other necessary values.
-2.  Authenticated with Google Cloud with sufficient permissions to manage Vertex AI and IAM resources. The service account used for deployment typically needs roles like `Vertex AI Admin` and `Service Account User`.
+1.  Complete all steps in the main project `README.md`, including running the `setup_environment.sh` script. This ensures your `.env` file is fully populated with the `RAG_CORPUS_NAME` and other necessary values.
+2.  Authenticate with Google Cloud with sufficient permissions to manage Vertex AI and IAM resources.
+3.  **Install Playwright Dependencies:** The `generate_diagram_from_mermaid` tool relies on Playwright. Ensure its system-level browser dependencies are installed by running the following command in your environment:
+    ```bash
+    npx playwright install --with-deps
+    ```
 
 #### How to Use
 
@@ -74,10 +77,12 @@ Deploy the agent to Cloud Run with a web interface using `deploy_cloud_run.sh`. 
 
 #### Prerequisites
 
-1. Complete all steps in the main project `README.md`, including running `setup_environment.sh`
-2. Install the Google ADK CLI
-3. Authenticate with Google Cloud with permissions for Cloud Run, Cloud Build, and Artifact Registry
-4. Ensure required environment variables are set in your `.env` file
+1.  Complete all steps in the main project `README.md`, including running `setup_environment.sh`.
+2.  Install the Google ADK CLI and authenticate with Google Cloud.
+3.  **Install Playwright Dependencies:** The `generate_diagram_from_mermaid` tool relies on Playwright. For Cloud Run deployment, the underlying container environment must have these dependencies. The `playwright` Python package handles this, but for local testing prior to deployment, ensure you have run:
+    ```bash
+    npx playwright install --with-deps
+    ```
 
 #### How to Use
 
