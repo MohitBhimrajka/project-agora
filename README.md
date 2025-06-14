@@ -11,7 +11,7 @@ The primary implementation, **ADK Copilot**, demonstrates this by automating the
 
 This is not just a chatbot. It is a blueprint for building autonomous, collaborative AI systems.
 
-**➡️ Watch the Demo Video Here: [Link to YouTube/Vimeo]**
+<!-- **➡️ Watch the Demo Video Here: [Link to YouTube/Vimeo]** -->
 
 ---
 
