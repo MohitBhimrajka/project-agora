@@ -25,6 +25,7 @@ from .tools.tools import (
     generate_diagram_from_mermaid,
 )
 
+from .callbacks import before_agent_call, before_tool_call, after_tool_call
 
 # The main Orchestrator Agent
 orchestrator_agent = Agent(
@@ -38,7 +39,6 @@ orchestrator_agent = Agent(
     """,
     instruction=ORCHESTRATOR_PROMPT,
     tools=[
-        # List ALL possible tools and sub-agents the orchestrator can call
         create_ticket,
         update_ticket_after_analysis,
         update_ticket_after_retrieval,
@@ -50,6 +50,9 @@ orchestrator_agent = Agent(
         AgentTool(code_generator_agent),
         AgentTool(code_reviewer_agent),
     ],
+    before_agent_callback=before_agent_call,
+    before_tool_callback=before_tool_call,
+    after_tool_callback=after_tool_call,
 )
 
 root_agent = orchestrator_agent

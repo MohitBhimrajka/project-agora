@@ -9,7 +9,7 @@ from ...tools import search_resolved_tickets_db
 # This agent's only job is to execute the database search tool.
 db_retrieval_agent = Agent(
     name="db_retrieval_agent",
-    model="gemini-2.0-flash-001",
+    model="gemini-2.5-pro-preview-05-06",
     instruction="You are a specialist whose only purpose is to search a database of past developer requests. You will be given a query. You MUST use the `search_resolved_tickets_db` tool to find similar past requests.",
     tools=[
         search_resolved_tickets_db,
