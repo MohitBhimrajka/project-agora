@@ -161,6 +161,7 @@ agent_config.yaml
 
 # next.js
 /.next/
+make_ingest.py
 /out/
 
 # production
