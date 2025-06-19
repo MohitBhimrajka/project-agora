@@ -70,7 +70,6 @@ Here's a walkthrough of the new, end-to-end code generation workflow:
 
 > **Agent:** Excellent. Here is the proposed architecture for your `CryptoPriceAgent`. I will create a main agent that uses a custom tool to call the CoinDesk API. This will require the `requests` library. Does this plan look good?
 >
-> **[A PNG image of the architecture diagram is displayed here]**
 
 > **User:** The plan and diagram look perfect. Go ahead and build it.
 
