@@ -2,6 +2,6 @@
   {
     "query": "Hello there!",
     "expected_tool_use": [],
-    "reference": "Hello!"
+    "reference": "Hello!, how can I help you today?"
   }
 ]
