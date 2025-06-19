@@ -7,24 +7,24 @@
   {
     "query": "My deployment is failing with a 403 Permission Denied error.",
     "expected_tool_use": [
-      { "tool_name": "create_ticket" },
-      { "tool_name": "ticket_analysis_agent" },
-      { "tool_name": "update_ticket_after_analysis" },
-      { "tool_name": "knowledge_retrieval_agent" },
-      { "tool_name": "db_retrieval_agent" },
-      { "tool_name": "problem_solver_agent" }
+      { "name": "create_ticket", "args": {} },
+      { "name": "ticket_analysis_agent", "args": {} },
+      { "name": "update_ticket_after_analysis", "args": {} },
+      { "name": "knowledge_retrieval_agent", "args": {} },
+      { "name": "db_retrieval_agent", "args": {} },
+      { "name": "problem_solver_agent", "args": {} }
     ],
     "reference": "A 403 error on deployment almost always indicates an IAM permission issue. Ensure that the service account being used for deployment has the 'Vertex AI Admin' and 'Service Account User' roles."
   },
   {
     "query": "Write me an agent that uses a custom tool to get the current weather.",
     "expected_tool_use": [
-        { "tool_name": "create_ticket" },
-        { "tool_name": "ticket_analysis_agent" },
-        { "tool_name": "update_ticket_after_analysis" },
-        { "tool_name": "knowledge_retrieval_agent" },
-        { "tool_name": "db_retrieval_agent" },
-        { "tool_name": "code_generator_agent" }
+        { "name": "create_ticket", "args": {} },
+        { "name": "ticket_analysis_agent", "args": {} },
+        { "name": "update_ticket_after_analysis", "args": {} },
+        { "name": "knowledge_retrieval_agent", "args": {} },
+        { "name": "db_retrieval_agent", "args": {} },
+        { "name": "code_generator_agent", "args": {} }
     ],
     "reference": "To build a weather agent, I propose an architecture with a main `WeatherAgent` that uses a custom `get_weather` tool. Is this design acceptable?"
   }
