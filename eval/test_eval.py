@@ -43,8 +43,6 @@ async def test_eval_conversation(test_case):
             agent_module="adk_copilot",
             eval_dataset_file_path_or_dir=str(temp_eval_file),
             num_runs=1,
-            criteria={'response_match_score': 0.5, 'tool_trajectory_avg_score': 1.0}
-
         )
     finally:
         # Clean up the temporary file
