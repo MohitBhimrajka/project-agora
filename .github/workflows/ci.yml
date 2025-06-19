@@ -32,10 +32,10 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-    # THIS IS THE NEW CRITICAL STEP
+    # THIS IS THE SIMPLIFIED AND CORRECTED SETUP STEP
     - name: Setup Cloud Environment
       run: |
-        # First, populate the .env file for the scripts to use
+        # First, populate the .env file for the setup scripts
         echo "GOOGLE_GENAI_USE_VERTEXAI=1" > .env
         echo "GOOGLE_CLOUD_PROJECT=${{ secrets.GCP_PROJECT_ID }}" >> .env
         echo "GOOGLE_CLOUD_LOCATION=${{ secrets.GCP_LOCATION }}" >> .env
@@ -43,13 +43,14 @@ jobs:
         echo "BQ_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}" >> .env
         echo "BQ_DATASET_ID=adk_copilot_dataset" >> .env
         
-        # Now, run the setup script
-        bash ./setup_environment.sh
-      env:
-        # Pass secrets to the runner's shell environment
-        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        GCP_LOCATION: ${{ secrets.GCP_LOCATION }}
+        # Now, run ONLY the necessary setup scripts using 'poetry run'
+        # This solves the ModuleNotFoundError and skips redundant steps.
+        echo "Setting up BigQuery..."
+        poetry run python scripts/setup_bigquery.py
         
+        echo "Setting up Vertex AI RAG Corpus..."
+        poetry run python scripts/setup_rag.py
+
     - name: Run evaluation tests
       run: |
         # Load the .env file created by the setup script (it now contains RAG_CORPUS_NAME)
@@ -59,11 +60,3 @@ jobs:
         
         # Run the tests
         poetry run pytest eval/ -v
-      env:
-        # Re-export the variables for this specific step to ensure they are available
-        GOOGLE_GENAI_USE_VERTEXAI: "1"
-        GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-        GOOGLE_CLOUD_LOCATION: ${{ secrets.GCP_LOCATION }}
-        GOOGLE_CLOUD_STORAGE_BUCKET: ${{ secrets.GCP_BUCKET_NAME }}
-        BQ_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        BQ_DATASET_ID: "adk_copilot_dataset"
