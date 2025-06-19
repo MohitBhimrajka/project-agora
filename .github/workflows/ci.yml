@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: 'actions/setup-python@v5'
       with:
         python-version: '3.11'
 
@@ -23,7 +23,6 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
-    # THIS IS THE NEW STEP TO ADD
     - name: Install Playwright Browsers
       run: poetry run playwright install --with-deps
 
@@ -33,13 +32,38 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-    - name: Run evaluation tests
-      run: poetry run pytest eval/ -v
+    # THIS IS THE NEW CRITICAL STEP
+    - name: Setup Cloud Environment
+      run: |
+        # First, populate the .env file for the scripts to use
+        echo "GOOGLE_GENAI_USE_VERTEXAI=1" > .env
+        echo "GOOGLE_CLOUD_PROJECT=${{ secrets.GCP_PROJECT_ID }}" >> .env
+        echo "GOOGLE_CLOUD_LOCATION=${{ secrets.GCP_LOCATION }}" >> .env
+        echo "GOOGLE_CLOUD_STORAGE_BUCKET=${{ secrets.GCP_BUCKET_NAME }}" >> .env
+        echo "BQ_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}" >> .env
+        echo "BQ_DATASET_ID=adk_copilot_dataset" >> .env
+        
+        # Now, run the setup script
+        bash ./setup_environment.sh
       env:
+        # Pass secrets to the runner's shell environment
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        GCP_LOCATION: ${{ secrets.GCP_LOCATION }}
+        
+    - name: Run evaluation tests
+      run: |
+        # Load the .env file created by the setup script (it now contains RAG_CORPUS_NAME)
+        set -o allexport
+        source .env
+        set +o allexport
+        
+        # Run the tests
+        poetry run pytest eval/ -v
+      env:
+        # Re-export the variables for this specific step to ensure they are available
         GOOGLE_GENAI_USE_VERTEXAI: "1"
         GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
         GOOGLE_CLOUD_LOCATION: ${{ secrets.GCP_LOCATION }}
         GOOGLE_CLOUD_STORAGE_BUCKET: ${{ secrets.GCP_BUCKET_NAME }}
         BQ_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         BQ_DATASET_ID: "adk_copilot_dataset"
-        RAG_CORPUS_NAME: ${{ secrets.RAG_CORPUS_NAME }}
