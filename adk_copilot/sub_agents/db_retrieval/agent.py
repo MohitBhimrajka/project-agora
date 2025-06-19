@@ -5,12 +5,13 @@
 from google.adk.agents import Agent
 
 from ...tools import search_resolved_tickets_db
+from .prompts import DB_RETRIEVAL_PROMPT
 
 # This agent's only job is to execute the database search tool.
 db_retrieval_agent = Agent(
     name="db_retrieval_agent",
     model="gemini-2.5-pro",
-    instruction="You are a specialist whose only purpose is to search a database of past developer requests. You will be given a query. You MUST use the `search_resolved_tickets_db` tool to find similar past requests.",
+    instruction=DB_RETRIEVAL_PROMPT,
     tools=[
         search_resolved_tickets_db,
     ],

@@ -7,6 +7,7 @@ import os
 from google.adk.agents import Agent
 from google.adk.tools.retrieval import VertexAiRagRetrieval
 from vertexai.preview import rag
+from .prompts import KNOWLEDGE_RETRIEVAL_PROMPT
 
 # Load the corpus name from the environment variable
 RAG_CORPUS_RESOURCE_NAME = os.getenv("RAG_CORPUS_NAME")
@@ -25,12 +26,7 @@ search_knowledge_base = VertexAiRagRetrieval(
 knowledge_retrieval_agent = Agent(
     name="knowledge_retrieval_agent",
     model="gemini-2.5-pro",
-    instruction="""
-        You are a search specialist. Your only job is to execute a search
-        for the given user request using the `search_knowledge_base` tool.
-        You MUST call this tool with the user's verbatim request.
-        Do not add any conversational text or attempt to rephrase the query.
-    """,
+    instruction=KNOWLEDGE_RETRIEVAL_PROMPT,
     tools=[
         search_knowledge_base,
     ],
