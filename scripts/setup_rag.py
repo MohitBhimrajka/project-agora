@@ -1,15 +1,14 @@
 # FILE: scripts/setup_rag.py
 
-import glob
 import os
 import time
 from pathlib import Path
 
 import vertexai
 from dotenv import find_dotenv, set_key
-from google.api_core.exceptions import Conflict, NotFound
+from google.api_core.exceptions import GoogleAPICallError
 from google.cloud import storage
-from vertexai import rag
+from vertexai.preview import rag
 
 # --- LLM PARSER CONFIGURATION ---
 # This is the custom prompt we designed in the previous step.
@@ -33,29 +32,27 @@ PARSER_MODEL_NAME = "gemini-2.0-flash-001"
 def upload_folder_to_gcs(bucket_name, source_folder, destination_prefix=""):
     """Uploads files from a local folder to a GCS bucket, skipping existing files."""
     storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
+    try:
+        bucket = storage_client.get_bucket(bucket_name)
+    except Exception as e:
+        print(f"ERROR: Could not get GCS bucket '{bucket_name}'. Please ensure it exists and you have permissions. Details: {e}")
+        raise
 
     source_path = Path(source_folder)
-    filepaths = [
-        p for p in source_path.rglob("*") if p.is_file() and not p.name.startswith(".")
-    ]
+    filepaths = [p for p in source_path.rglob("*") if p.is_file() and not p.name.startswith(".")]
 
     print(f"INFO: Checking {len(filepaths)} files for upload from '{source_folder}'...")
 
     upload_count = 0
     for filepath in filepaths:
-        destination_blob_name = os.path.join(
-            destination_prefix, filepath.relative_to(source_path)
-        )
+        destination_blob_name = os.path.join(destination_prefix, filepath.relative_to(source_path))
         blob = bucket.blob(destination_blob_name)
         if not blob.exists():
             blob.upload_from_filename(str(filepath))
             upload_count += 1
 
     if upload_count > 0:
-        print(
-            f"INFO: Successfully uploaded {upload_count} new files to gs://{bucket_name}/{destination_prefix}"
-        )
+        print(f"INFO: Successfully uploaded {upload_count} new files to gs://{bucket_name}/{destination_prefix}")
     else:
         print("INFO: All files already up-to-date in Google Cloud Storage.")
 
@@ -66,7 +63,7 @@ def create_gcs_bucket_if_not_exists(bucket_name, project_id, location):
     try:
         storage_client.get_bucket(bucket_name)
         print(f"INFO: GCS Bucket '{bucket_name}' already exists.")
-    except NotFound:
+    except Exception:
         print(f"INFO: GCS Bucket '{bucket_name}' not found. Creating...")
         storage_client.create_bucket(bucket_name, project=project_id, location=location)
         print(f"INFO: Created GCS Bucket '{bucket_name}'.")
@@ -87,9 +84,7 @@ def get_or_create_rag_corpus(display_name: str) -> rag.RagCorpus:
     corpora = rag.list_corpora()
     for existing_corpus in corpora:
         if existing_corpus.display_name == display_name:
-            print(
-                f"INFO: Found existing RAG Corpus '{display_name}' with name: {existing_corpus.name}"
-            )
+            print(f"INFO: Found existing RAG Corpus '{display_name}' with name: {existing_corpus.name}")
             return existing_corpus
     print(f"INFO: RAG Corpus '{display_name}' not found. Creating a new one...")
     new_corpus = rag.create_corpus(display_name=display_name)
@@ -104,15 +99,13 @@ def setup():
     bucket_name = os.getenv("GOOGLE_CLOUD_STORAGE_BUCKET")
 
     if not all([project_id, location, bucket_name]):
-        raise ValueError(
-            "GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, and GOOGLE_CLOUD_STORAGE_BUCKET must be set."
-        )
+        raise ValueError("GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, and GOOGLE_CLOUD_STORAGE_BUCKET must be set.")
 
     vertexai.init(project=project_id, location=location)
 
     print("\n--- Step 1: Setting up Google Cloud Storage ---")
     create_gcs_bucket_if_not_exists(bucket_name, project_id, location)
-    kb_source_folder = "data/pdf"
+    kb_source_folder = "data/knowledge_base"
     gcs_destination_prefix = "rag_knowledge_base"
     upload_folder_to_gcs(bucket_name, kb_source_folder, gcs_destination_prefix)
     gcs_uri = f"gs://{bucket_name}/{gcs_destination_prefix}"
@@ -127,51 +120,42 @@ def setup():
     print(f"\n--- Step 4: Importing files with LLM Parser ---")
 
     try:
-        transformation_config = rag.TransformationConfig(
-            chunking_config=rag.ChunkingConfig(
-                chunk_size=1024,
-                chunk_overlap=200,
+        # This is the modern, robust way to handle the import operation
+        import_files_operation = rag.import_files(
+            corpus.name,
+            [gcs_uri],
+            chunk_size=1024,
+            chunk_overlap=200,
+            parsing_config=rag.ParsingConfig(
+                llm_parser=rag.LlmParserConfig(
+                    model_name=PARSER_MODEL_NAME,
+                    custom_parsing_prompt=CUSTOM_PARSING_PROMPT,
+                )
             ),
         )
 
-        llm_parser_config = rag.LlmParserConfig(
-            model_name=PARSER_MODEL_NAME,
-            custom_parsing_prompt=CUSTOM_PARSING_PROMPT,
-        )
+        print(f"INFO: File import process started. This is a background operation that can take several minutes.")
+        print("INFO: Waiting for completion...")
 
-        import_op = rag.import_files(
-            corpus.name,
-            [gcs_uri],
-            transformation_config=transformation_config,
-            llm_parser=llm_parser_config,  # Use the llm_parser parameter
-        )
+        # The .result() method will block until the operation is complete.
+        # This is the correct way to handle the long-running operation.
+        response = import_files_operation.result(timeout=1800)
 
-        print(
-            f"INFO: File import process started (Job ID: {import_op.name}). This is an async operation."
-        )
-        print("INFO: Polling for completion status... (This may take a few minutes)")
+        print(f"✅ File import completed successfully. Response: {response}")
+        print("\n✅✅✅ RAG Corpus setup complete! ✅✅✅")
 
-        import_job = rag.get_import_job(import_op.name)
-
-        while import_job.state == rag.ImportState.RUNNING:
-            print("  - Import job is still running...")
-            time.sleep(30)
-            import_job = rag.get_import_job(import_op.name)
-
-        if import_job.state == rag.ImportState.SUCCEEDED:
-            print("✅ File import completed successfully.")
-            print("\n✅✅✅ RAG Corpus setup complete! ✅✅✅")
-        else:
-            print(f"❌ File import failed with state: {import_job.state}")
-            if import_job.error:
-                print(f"  - Error details: {import_job.error.message}")
-
+    except GoogleAPICallError as e:
+        print(f"❌ An API error occurred during RAG file import: {e}")
+        raise
     except Exception as e:
-        print(f"❌ An error occurred during RAG file import: {e}")
+        print(f"❌ An unexpected error occurred during RAG file import: {e}")
+        # This can catch timeout errors from the .result() call
+        if "timeout" in str(e).lower():
+            print("HINT: The import operation timed out. This can happen with large datasets. You can try increasing the timeout value in the .result(timeout=...) call.")
+        raise
 
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
-
     load_dotenv()
     setup()
