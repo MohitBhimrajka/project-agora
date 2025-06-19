@@ -2,6 +2,6 @@
   {
     "query": "Hello there!",
     "expected_tool_use": [],
-    "reference": "Hello! I am ADK Copilot, an expert AI assistant for the Google Agent Development Kit. How can I help you today?"
+    "reference": "Hello!"
   }
 ]
