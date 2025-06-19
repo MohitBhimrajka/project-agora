@@ -1,7 +1,6 @@
 # FILE: scripts/setup_rag.py
 
 import os
-import time
 from pathlib import Path
 
 import vertexai
@@ -11,7 +10,6 @@ from google.cloud import storage
 from vertexai.preview import rag
 
 # --- LLM PARSER CONFIGURATION ---
-# This is the custom prompt we designed in the previous step.
 CUSTOM_PARSING_PROMPT = """
 You are a factual data extractor for a technical software development kit (SDK) documentation.
 Your task is to extract key information from the provided documents, which include technical guides, API references, and code examples for the Google Agent Development Kit (ADK).
@@ -24,7 +22,6 @@ Your primary focus is to extract the following key data types exactly as they ap
 - Code snippets and examples
 Do not analyze, interpret, summarize, or give opinions on the content. Your role is to extract only what the document explicitly says. Do not add any information that is not present in the source text.
 """
-# Using a cost-effective but capable model for parsing.
 PARSER_MODEL_NAME = "gemini-2.0-flash-001"
 # --------------------------------
 
@@ -120,25 +117,31 @@ def setup():
     print(f"\n--- Step 4: Importing files with LLM Parser ---")
 
     try:
-        # This is the modern, robust way to handle the import operation
+        # Define the configuration objects separately, as expected by this SDK version.
+        transformation_config = rag.TransformationConfig(
+            chunking_config=rag.ChunkingConfig(
+                chunk_size=1024,
+                chunk_overlap=200,
+            ),
+        )
+
+        llm_parser_config = rag.LlmParserConfig(
+            model_name=PARSER_MODEL_NAME,
+            custom_parsing_prompt=CUSTOM_PARSING_PROMPT,
+        )
+
+        # Pass the config objects as separate, top-level arguments.
         import_files_operation = rag.import_files(
             corpus.name,
             [gcs_uri],
-            chunk_size=1024,
-            chunk_overlap=200,
-            parsing_config=rag.ParsingConfig(
-                llm_parser=rag.LlmParserConfig(
-                    model_name=PARSER_MODEL_NAME,
-                    custom_parsing_prompt=CUSTOM_PARSING_PROMPT,
-                )
-            ),
+            transformation_config=transformation_config,
+            llm_parser=llm_parser_config,
         )
 
         print(f"INFO: File import process started. This is a background operation that can take several minutes.")
         print("INFO: Waiting for completion...")
 
-        # The .result() method will block until the operation is complete.
-        # This is the correct way to handle the long-running operation.
+        # The .result() method is still the correct way to wait.
         response = import_files_operation.result(timeout=1800)
 
         print(f"✅ File import completed successfully. Response: {response}")
@@ -149,9 +152,6 @@ def setup():
         raise
     except Exception as e:
         print(f"❌ An unexpected error occurred during RAG file import: {e}")
-        # This can catch timeout errors from the .result() call
-        if "timeout" in str(e).lower():
-            print("HINT: The import operation timed out. This can happen with large datasets. You can try increasing the timeout value in the .result(timeout=...) call.")
         raise
 
 
