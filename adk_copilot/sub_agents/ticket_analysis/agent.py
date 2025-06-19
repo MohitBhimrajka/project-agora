@@ -8,7 +8,7 @@ from ...tools.file_reader_tool import read_user_file
 # This is a specialized agent that uses a targeted prompt
 ticket_analysis_agent = Agent(
     name="ticket_analysis_agent",
-    model="gemini-2.5-pro",
+    model="gemini-2.5-flash",
     instruction="""
         You are an expert ADK (Agent Development Kit) support analyst.
         Your task is to analyze a developer's request and output ONLY a JSON object.
