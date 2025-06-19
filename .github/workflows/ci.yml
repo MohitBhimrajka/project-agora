@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    permissions: # These permissions are required for the google-github-actions/auth action
+    permissions:
       contents: 'read'
       id-token: 'write'
 
@@ -23,14 +23,16 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
-    # Step 1: Authenticate to Google Cloud. This makes ADC work.
+    # THIS IS THE NEW STEP TO ADD
+    - name: Install Playwright Browsers
+      run: poetry run playwright install --with-deps
+
     - name: Authenticate to Google Cloud
       id: auth
       uses: 'google-github-actions/auth@v2'
       with:
         credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-    # Step 2: Run tests with the necessary environment variables.
     - name: Run evaluation tests
       run: poetry run pytest eval/ -v
       env:
@@ -39,5 +41,5 @@ jobs:
         GOOGLE_CLOUD_LOCATION: ${{ secrets.GCP_LOCATION }}
         GOOGLE_CLOUD_STORAGE_BUCKET: ${{ secrets.GCP_BUCKET_NAME }}
         BQ_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        BQ_DATASET_ID: ${{ secrets.BQ_DATASET_ID }}
+        BQ_DATASET_ID: "adk_copilot_dataset"
         RAG_CORPUS_NAME: ${{ secrets.RAG_CORPUS_NAME }}
