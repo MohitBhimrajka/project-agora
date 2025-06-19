@@ -64,7 +64,6 @@ ipython_config.py
 # --- Virtual Environments ---
 # This is one of the most important rules. Never commit your virtual environment.
 .env
-.env.*
 .venv
 env/
 venv/
