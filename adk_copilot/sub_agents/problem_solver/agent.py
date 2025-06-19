@@ -6,7 +6,7 @@ from google.adk.agents import LlmAgent
 
 problem_solver_agent = LlmAgent(
     name="problem_solver_agent",
-    model="gemini-2.5-pro-preview-05-06",
+    model="gemini-2.5-pro",
     instruction="""
         You are a Senior ADK Support Engineer, a world-class expert in diagnosing and solving issues with the Google Agent Development Kit. You are methodical, precise, and helpful.
 

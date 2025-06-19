@@ -23,6 +23,7 @@ from .tools.tools import (
     update_ticket_after_analysis,
     update_ticket_after_retrieval,
     generate_diagram_from_mermaid,
+    format_code_reviewer_output,
 )
 
 from .callbacks import before_agent_call, before_tool_call, after_tool_call
@@ -30,7 +31,7 @@ from .callbacks import before_agent_call, before_tool_call, after_tool_call
 # The main Orchestrator Agent
 orchestrator_agent = Agent(
     name="orchestrator_agent",
-    model="gemini-2.5-pro-preview-05-06",
+    model="gemini-2.5-pro",
     global_instruction="""
         You are 'ADK Copilot', an expert AI assistant for the Google Agent Development Kit.
         Your goal is to provide accurate, helpful, and professional support to developers.
@@ -43,6 +44,7 @@ orchestrator_agent = Agent(
         update_ticket_after_analysis,
         update_ticket_after_retrieval,
         generate_diagram_from_mermaid,
+        format_code_reviewer_output,
         AgentTool(ticket_analysis_agent),
         AgentTool(knowledge_retrieval_agent),
         AgentTool(db_retrieval_agent),

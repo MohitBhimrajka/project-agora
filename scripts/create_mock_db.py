@@ -129,7 +129,7 @@ def generate_mock_data_with_embeddings():
         [
             "ADK-402",
             "DEV-402",
-            "My agent is failing with a 404 NOT_FOUND error for a model like `gemini-2.5-pro-preview-05-06`.",
+            "My agent is failing with a 404 NOT_FOUND error for a model like `gemini-2.5-pro`.",
             "Configuration",
             "A `404 NOT_FOUND` error for a model means the model name is either incorrect or not available in your specified GCP project and region. Check the official Google Cloud documentation for valid, available model names for your location and update your agent definitions accordingly.",
         ],

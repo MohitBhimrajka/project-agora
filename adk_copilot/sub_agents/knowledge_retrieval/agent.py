@@ -24,7 +24,7 @@ search_knowledge_base = VertexAiRagRetrieval(
 # This agent's only job is to expose the search_knowledge_base tool.
 knowledge_retrieval_agent = Agent(
     name="knowledge_retrieval_agent",
-    model="gemini-2.5-pro-preview-05-06",
+    model="gemini-2.5-pro",
     instruction="""
         You are a search specialist. Your only job is to execute a search
         for the given user request using the `search_knowledge_base` tool.
