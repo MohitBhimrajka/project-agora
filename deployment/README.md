@@ -29,7 +29,7 @@ Deploy the agent as a managed reasoning engine using `deploy_agent_engine.py`. T
 
 1.  Complete all steps in the main project `README.md`, including running the `setup_environment.sh` script. This ensures your `.env` file is fully populated with the `RAG_CORPUS_NAME` and other necessary values.
 2.  Authenticate with Google Cloud with sufficient permissions to manage Vertex AI and IAM resources.
-3.  **Install Playwright Dependencies:** The `generate_diagram_from_mermaid` tool relies on Playwright. Ensure its system-level browser dependencies are installed by running the following command in your environment:
+3.  **Install Playwright Dependencies:** The `generate_diagram_from_mermaid` tool relies on Playwright. Ensure its system-level browser dependencies are installed by running the following command in your environment **before deploying**:
     ```bash
     npx playwright install --with-deps
     ```

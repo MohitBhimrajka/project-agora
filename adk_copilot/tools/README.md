@@ -10,3 +10,4 @@ This directory contains custom Python functions exposed as "tools" to the agent 
 | `search_resolved_tickets_db()`     | Performs a semantic vector search on the Google BigQuery database of historical tickets.                         | `db_retrieval_agent`      |
 | `read_user_file()`                 | Reads the text content of a user-provided file from a Google Cloud Storage URI.                                | `ticket_analysis_agent`   |
 | `generate_diagram_from_mermaid()`  | Renders Mermaid syntax into a PNG image, uploads it to GCS, and returns a public URL.                          | `orchestrator_agent`      |
+| `format_code_reviewer_output()`    | Parses the JSON output from the code reviewer and formats it into a user-friendly Markdown response.            | `orchestrator_agent`      |
