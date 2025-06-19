@@ -39,4 +39,5 @@ jobs:
         GOOGLE_CLOUD_LOCATION: ${{ secrets.GCP_LOCATION }}
         GOOGLE_CLOUD_STORAGE_BUCKET: ${{ secrets.GCP_BUCKET_NAME }}
         BQ_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-        BQ_DATASET_ID: "adk_copilot_dataset"
+        BQ_DATASET_ID: ${{ secrets.BQ_DATASET_ID }}
+        RAG_CORPUS_NAME: ${{ secrets.RAG_CORPUS_NAME }}
