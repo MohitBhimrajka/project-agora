@@ -16,6 +16,8 @@ help:
 install:
 	@echo "📦 Installing dependencies with Poetry..."
 	poetry install
+	@echo "🌐 Installing Playwright browser dependencies..."
+	npx playwright install --with-deps
 
 setup:
 	@echo "🚀 Setting up ADK Copilot environment..."

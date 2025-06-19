@@ -8,7 +8,6 @@ from google.adk.tools.tool_context import ToolContext
 
 from .logging_config import logger # Import our configured logger
 
-# --- FIX: Modified this function to only use the 'state' attribute ---
 def before_agent_call(callback_context: CallbackContext):
     """Logs the start of an agent's turn."""
     logger.info("Orchestrator turn started.")

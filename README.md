@@ -171,20 +171,23 @@ The repository is organized to separate core logic from data, scripts, and deplo
 
 ```
 mohitbhimrajka-adk-copilot/
-├── adk_copilot/
-│   ├── agent.py         # Main orchestrator agent.
-│   ├── prompts.py       # Centralized prompts for all agents.
-│   ├── entities/        # Pydantic data models (SupportTicket).
-│   ├── sub_agents/      # The six specialist agents (Analyst, Librarian, etc.).
-│   └── tools/           # Custom tools (BigQuery search, diagram gen, etc.).
-├── data/
-│   ├── knowledge_base/  # Documents for the Vertex AI RAG Corpus.
-│   └── resolved_tickets.csv # Data for the BigQuery database.
-├── scripts/             # Automation scripts for setup and data prep.
-├── deployment/          # Deployment scripts for Cloud Run & Agent Engine.
-├── eval/                # Evaluation suite for testing agent performance.
-├── setup_environment.sh # The master script for one-command setup.
-└── README.md            # This file.
+├── .github/                 # GitHub templates for issues and PRs.
+├── adk_copilot/             # Core application source code.
+│   ├── agent.py             # Main orchestrator agent.
+│   ├── prompts.py           # Centralized prompts for all agents.
+│   ├── entities/            # Pydantic data models (SupportTicket).
+│   ├── sub_agents/          # Specialist agents (Analyst, Engineer, etc.).
+│   └── tools/               # Custom tools (BigQuery search, diagram gen, etc.).
+├── deployment/              # Scripts for Cloud Run & Agent Engine deployment.
+├── eval/                    # Evaluation suite for testing agent performance.
+│   └── data/                # Test cases for evaluation.
+├── scripts/                 # Automation scripts for setup and data prep.
+├── cleanup.sh               # Reverses the setup script.
+├── CONTRIBUTING.md
+├── LICENSE
+├── Makefile                 # Simplified commands for developers.
+├── pyproject.toml           # Project dependencies and configuration.
+└── README.md                # This file.
 ```
 
 ## 🛣️ Roadmap
