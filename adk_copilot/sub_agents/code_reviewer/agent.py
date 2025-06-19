@@ -75,18 +75,18 @@ Your response MUST be ONLY a valid JSON object. NO other text, explanations, or 
 - NO explanatory text before or after JSON
 
 **Example Issues & Fixes:**
-- Missing import → Add: `from google.adk.agents import LlmAgent`
-- No root_agent → Add: `root_agent = my_agent_instance`
-- Wrong __init__.py → Fix: `from .agent import root_agent`
-- Missing dependency → Add to pyproject.toml dependencies
-- No error handling → Wrap tool code in try/except blocks
+- Missing import: Add: `from google.adk.agents import LlmAgent`
+- No root_agent: Add: `root_agent = my_agent_instance`
+- Wrong __init__.py: Fix: `from .agent import root_agent`
+- Missing dependency: Add to pyproject.toml dependencies
+- No error handling: Wrap tool code in try/except blocks
 
 **REMEMBER:** Your entire response must be valid JSON that can be parsed by `json.loads()`.
 """
 
 code_reviewer_agent = LlmAgent(
     name="code_reviewer_agent",
-    model="gemini-2.5-pro-preview-05-06",
+    model="gemini-2.5-pro",
     # Pass the pre-formatted string directly.
     instruction=REVIEWER_INSTRUCTION,
 )
