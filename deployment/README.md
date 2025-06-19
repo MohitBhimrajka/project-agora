@@ -5,6 +5,15 @@ This directory contains the scripts and configuration needed to deploy the ADK C
 1. **Vertex AI Agent Engine** - Deploy as a managed reasoning engine service
 2. **Cloud Run with Dev UI** - Deploy with a web interface for development and testing
 
+## Which Deployment Option to Choose?
+
+| Feature                       | Vertex AI Agent Engine                                    | Cloud Run with Dev UI                               |
+| ----------------------------- | --------------------------------------------------------- | --------------------------------------------------- |
+| **Primary Use Case**          | Production, API-driven integration                        | Development, Interactive Testing, Demos             |
+| **Interface**                 | API only                                                  | Web UI & API                                        |
+| **Management**                | Fully managed by Vertex AI                                | Serverless container managed by you                 |
+| **Best For**                  | Building scalable backend services for other applications | Rapidly iterating and demonstrating agent behavior  |
+
 ## Overview
 
 The deployment process offers two different approaches depending on your needs:
@@ -102,21 +111,6 @@ Upon successful deployment, you'll receive:
 - Console URL for monitoring the service
 - Command to get the service URL for accessing the web interface
 
-## Which Deployment Option to Choose?
-
-### Use Agent Engine Deployment When:
-- You need a production-ready managed service
-- You want to integrate the agent into other applications via API
-- You prefer serverless, fully managed infrastructure
-- You don't need a web interface
-
-### Use Cloud Run Deployment When:
-- You want a web interface for interactive testing
-- You're in development or testing phases
-- You need to demonstrate the agent's capabilities
-- You want both UI and API access
-- You prefer more control over the deployment environment
-
 ## Environment Variables
 
 Both deployment options require the following environment variables to be set in your `.env` file:
@@ -130,3 +124,35 @@ Both deployment options require the following environment variables to be set in
 Additional variables for Cloud Run deployment:
 - `GOOGLE_CLOUD_STORAGE_BUCKET`: GCS bucket for staging (Agent Engine only)
 - `SERVICE_NAME`: Cloud Run service name (optional, defaults to "adk-copilot")
+
+---
+
+## Verifying Your Deployment
+
+After deploying, you can test your endpoint to ensure it's running correctly.
+
+### For Agent Engine:
+Use the `gcloud` command to send a query. You will need the `REASONING_ENGINE_ID` from the deployment output.
+
+```bash
+gcloud alpha vertex ai reasoning-engines query REASONING_ENGINE_ID \
+  --project="your-gcp-project-id" \
+  --location="us-central1" \
+  --query="Hello there"
+```
+
+### For Cloud Run:
+
+**Get your service's URL:**
+```bash
+gcloud run services describe adk-copilot --region=us-central1 --format='value(status.url)'
+```
+
+**Visit the URL in your browser** to use the web UI, or use curl to interact with the API:
+```bash
+SERVICE_URL=$(gcloud run services describe adk-copilot --region=us-central1 --format='value(status.url)')
+
+curl -X POST "${SERVICE_URL}/chat" \
+  -H "Content-Type: application/json" \
+  -d '{"agent_id": "adk_copilot", "query": "Hello there"}'
+```

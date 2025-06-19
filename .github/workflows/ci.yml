@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
+    - name: Configure Poetry
+      run: poetry config virtualenvs.create false
+      
+    - name: Install dependencies
+      run: poetry install
+      
+    - name: Run linting
+      run: |
+        poetry run python -m flake8 adk_copilot/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        poetry run python -m flake8 adk_copilot/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    - name: Type checking with mypy
+      run: poetry run mypy adk_copilot/ --ignore-missing-imports || true
+      
+    - name: Run tests
+      run: poetry run pytest eval/ -v
+      env:
+        # Note: For actual CI, you would need to set up test GCP project secrets
+        # GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+        # Add other necessary test environment variables here
+        SKIP_CLOUD_TESTS: "true"  # Skip cloud integration tests in CI
+        
+    - name: Check import structure
+      run: |
+        echo "Checking that all modules can be imported..."
+        poetry run python -c "
+        try:
+            from adk_copilot.agent import orchestrator_agent
+            from adk_copilot.tools.tools import create_ticket
+            from adk_copilot.sub_agents.ticket_analysis.agent import ticket_analysis_agent
+            print('✅ All critical imports successful')
+        except ImportError as e:
+            print(f'❌ Import error: {e}')
+            exit(1)
+        "
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
+    - name: Install dependencies
+      run: poetry install
+      
+    - name: Run security scan
+      run: |
+        poetry add --group dev bandit
+        poetry run bandit -r adk_copilot/ -f json -o bandit-report.json || true
+        
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-report
+        path: bandit-report.json 

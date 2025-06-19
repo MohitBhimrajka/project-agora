@@ -7,16 +7,43 @@
 
 This project showcases a powerful, reusable framework built with the **Google Agent Development Kit (ADK)** to architect and orchestrate sophisticated teams of AI specialists that can automate complex, end-to-end workflows.
 
-The primary implementation, **ADK Copilot**, demonstrates this by automating the entire software development lifecycle—from understanding a user's request, to designing a plan, generating code, visualizing the architecture, and performing an automated code review.
-
-This is not just a chatbot. It is a blueprint for building autonomous, collaborative AI systems.
-
-<!-- **➡️ Watch the Demo Video Here: [Link to YouTube/Vimeo]** -->
+**This is not just a chatbot. It is a blueprint for building autonomous, collaborative AI systems.**
 
 ---
 
+### TL;DR: Quickstart
+
+For experienced developers who want to get running immediately:
+
+```bash
+# 1. Clone the repository
+git clone <your-repo-url>
+cd adk-copilot
+
+# 2. Configure your environment
+cp .env.example .env
+# --> EDIT .env and set your GCP_PROJECT_ID and a unique BUCKET_NAME <--
+
+# 3. Install dependencies
+poetry install
+
+# 4. Provision the cloud backend (this will take several minutes)
+./setup_environment.sh
+
+# 5. Run the agent
+adk web
+```
+
 ![ADK Copilot Architecture v2](architecture_diagram_v2.png)
 _The architecture: An ADK Orchestrator managing a full development lifecycle with a code review loop._
+
+## Who is This Framework For?
+
+This repository is designed for:
+
+- **AI Engineers & Developers** looking to build robust, multi-agent systems that go beyond simple request-response.
+- **Teams wanting to automate complex internal processes** (like developer support, data analysis, or content creation) with a reliable, stateful AI workforce.
+- **Architects seeking a production-ready blueprint** for deploying agentic workflows on Google Cloud.
 
 ## The ADK Copilot: An Example in Action
 
@@ -78,16 +105,54 @@ A good developer team communicates its plan visually. When asked to generate cod
 #### 4. Guarantee Quality with an Automated Code Reviewer
 Generated code is not trusted blindly. After the `code_generator_agent` writes the code, it is immediately passed to a dedicated `code_reviewer_agent`. This QA agent analyzes the code against a formal **style guide**, checking for correctness, security, and best practices, ensuring a high-quality output every time.
 
-## Getting Started
+## Getting Started (Detailed Steps)
 
-#### Setup and Installation
-1.  **Prerequisites:** Python 3.11+, Poetry, and an authenticated Google Cloud SDK.
-2.  **Configure:** Copy `.env.example` to `.env` and fill in your GCP `project-id` and a unique `bucket-name`.
-3.  **Install:** Run `poetry install`.
-4.  **Build Backend:** Run `./setup_environment.sh` to provision all cloud resources.
+Follow these steps to set up and run the ADK Copilot on your local machine.
 
-#### Running the Agent
-Start the local web interface with `adk web` and select `adk_copilot`.
+### Step 1: Prerequisites
+
+- **Python 3.11+**
+- **Poetry** for dependency management.
+- An authenticated **Google Cloud SDK** (`gcloud auth application-default login`).
+
+### Step 2: Configuration
+
+**Clone the Repository:**
+```bash
+git clone <your-repo-url>
+cd adk-copilot
+```
+
+**Create an Environment File:** Copy the example `.env` file.
+```bash
+cp .env.example .env
+```
+
+**Edit `.env`:** Open the new `.env` file and set the following required values:
+- `GOOGLE_CLOUD_PROJECT`: Your Google Cloud Project ID.
+- `GOOGLE_CLOUD_STORAGE_BUCKET`: A globally unique name for a new GCS bucket that will be created.
+- `BQ_PROJECT_ID`: Set this to your Google Cloud Project ID.
+
+### Step 3: Installation & Backend Setup
+
+**Install Dependencies:**
+```bash
+poetry install
+```
+
+**Provision Cloud Resources:** This master script will create the GCS bucket, BigQuery dataset, and Vertex AI RAG Corpus needed for the agent. This may take 5-10 minutes.
+```bash
+./setup_environment.sh
+```
+
+### Step 4: Running the Agent
+
+Start the local web interface provided by the ADK CLI.
+```bash
+adk web
+```
+
+Once the server starts, open the URL in your browser and select `adk_copilot` from the agent dropdown list.
 
 ## Customizing the Framework
 This project's greatest strength is its adaptability. To create your own specialized assistant:
@@ -122,6 +187,24 @@ mohitbhimrajka-adk-copilot/
 ├── setup_environment.sh # The master script for one-command setup.
 └── README.md            # This file.
 ```
+
+## 🛣️ Roadmap
+
+This framework is a living project with exciting enhancements planned for the future. We welcome community input and contributions!
+
+### Long-term Aspirations
+- [ ] **GitHub Integration Hub**: Comprehensive GitHub integration for automated code reviews, issue management, and CI/CD pipeline orchestration
+- [ ] **Federated Agent Networks**: Support for distributed agent teams across multiple organizations or cloud environments
+- [ ] **Industry-Specific Templates**: Pre-configured agent teams for specific domains (healthcare, finance, legal, etc.)
+
+### Community Contributions Welcome
+We're particularly interested in contributions that:
+- Add new specialized agents for different domains
+- Improve the reliability and robustness of existing tools
+- Enhance the developer experience with better debugging and monitoring
+- Expand integration capabilities with popular enterprise tools
+
+See our [Contributing Guide](CONTRIBUTING.md) for details on how to get involved!
 
 ## Disclaimer
 

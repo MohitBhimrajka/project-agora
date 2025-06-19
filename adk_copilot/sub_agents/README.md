@@ -2,6 +2,14 @@
 
 This directory contains the specialized "worker" agents managed by the main `orchestrator_agent`. Each sub-agent is a modular component with a single, well-defined responsibility in the developer support workflow. This separation of concerns is a core design principle of the ADK Copilot framework.
 
+### The Orchestration Flow
+
+The central `orchestrator_agent` directs the workflow based on its state machine prompt. The typical flow for a technical request is as follows:
+
+`User Request` → `ticket_analysis_agent` → `[knowledge_retrieval_agent & db_retrieval_agent (in parallel)]` → **(User Confirms)** → `[code_generator_agent OR problem_solver_agent]` → `code_reviewer_agent (if code)` → `Final Response`
+
+The logic for this entire sequence is defined in the orchestrator's prompt: `adk_copilot/prompts.py`.
+
 ---
 
 ## The AI Team Roster
