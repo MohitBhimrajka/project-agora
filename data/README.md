@@ -1,6 +1,6 @@
 # Data Directory
 
-This directory contains all the source data required to power the ADK Copilot. This data is processed by the automation scripts in the `/scripts` directory to set up the necessary cloud backends.
+This directory contains all the source data required to power Project Agora. This data is processed by the automation scripts in the `/scripts` directory to set up the necessary cloud backends.
 
 ---
 

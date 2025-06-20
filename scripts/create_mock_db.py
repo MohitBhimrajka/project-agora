@@ -372,7 +372,7 @@ def generate_mock_data_with_embeddings():
             "DEV-810",
             "Can I evaluate just one part of my multi-agent system?",
             "Evaluation",
-            "Yes. The `AgentEvaluator` takes an `agent_module` as its target. You can point it directly at a sub-agent's module path (e.g., `adk_copilot.sub_agents.problem_solver`) and provide a test data set tailored specifically to that sub-agent's inputs and expected outputs. This is a great way to test your specialist agents in isolation.",
+            "Yes. The `AgentEvaluator` takes an `agent_module` as its target. You can point it directly at a sub-agent's module path (e.g., `project_agora.sub_agents.problem_solver`) and provide a test data set tailored specifically to that sub-agent's inputs and expected outputs. This is a great way to test your specialist agents in isolation.",
         ],
         [
             "ADK-902",

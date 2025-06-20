@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Cloud Run Deployment Script for ADK Copilot
+# Cloud Run Deployment Script for Project Agora
 # This script loads environment variables and deploys the agent to Google Cloud Run
 
 set -e  # Exit on any error
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 ADK Copilot Cloud Run Deployment Script${NC}"
+echo -e "${BLUE}🚀 Project Agora Cloud Run Deployment Script${NC}"
 echo "================================================"
 
 # Load environment variables from .env file if it exists

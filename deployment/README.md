@@ -1,6 +1,6 @@
 # Deployment Directory
 
-This directory contains the scripts and configuration needed to deploy the ADK Copilot agent to Google Cloud. You have two deployment options:
+This directory contains the scripts and configuration needed to deploy the Project Agora agent to Google Cloud. You have two deployment options:
 
 1. **Vertex AI Agent Engine** - Deploy as a managed reasoning engine service
 2. **Cloud Run with Dev UI** - Deploy with a web interface for development and testing
@@ -123,7 +123,7 @@ Both deployment options require the following environment variables to be set in
 
 Additional variables for Cloud Run deployment:
 - `GOOGLE_CLOUD_STORAGE_BUCKET`: GCS bucket for staging (Agent Engine only)
-- `SERVICE_NAME`: Cloud Run service name (optional, defaults to "adk-copilot")
+- `SERVICE_NAME`: Cloud Run service name (optional, defaults to "project-agora")
 
 ---
 
@@ -145,14 +145,14 @@ gcloud alpha vertex ai reasoning-engines query REASONING_ENGINE_ID \
 
 **Get your service's URL:**
 ```bash
-gcloud run services describe adk-copilot --region=us-central1 --format='value(status.url)'
+gcloud run services describe project-agora --region=us-central1 --format='value(status.url)'
 ```
 
 **Visit the URL in your browser** to use the web UI, or use curl to interact with the API:
 ```bash
-SERVICE_URL=$(gcloud run services describe adk-copilot --region=us-central1 --format='value(status.url)')
+SERVICE_URL=$(gcloud run services describe project-agora --region=us-central1 --format='value(status.url)')
 
 curl -X POST "${SERVICE_URL}/chat" \
   -H "Content-Type: application/json" \
-  -d '{"agent_id": "adk_copilot", "query": "Hello there"}'
+  -d '{"agent_id": "project_agora", "query": "Hello there"}'
 ```

@@ -1,13 +1,15 @@
-# ADK Copilot: A Reusable Framework for Autonomous AI Teams
+# **Project Agora: A Framework for Multi-Agent Workflows**
 
-> ### Built for ADK Developers, by an ADK-powered AI Team.
+> ### A reference implementation for orchestrating hierarchical multi-agent systems on Google Cloud using the Agent Development Kit (ADK).
 
-![Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)
-![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)
+[![Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)](https://devpost.com/) [![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](LICENSE) [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/MohitBhimrajka/project-agora)
 
-This project showcases a powerful, reusable framework built with the **Google Agent Development Kit (ADK)** to architect and orchestrate sophisticated teams of AI specialists that can automate complex, end-to-end workflows.
+This project showcases a powerful, reusable framework for architecting and orchestrating hierarchical multi-agent systems with the **Google Agent Development Kit (ADK)**. It provides a robust pattern for automating complex, end-to-end workflows by composing specialized, tool-using agents.
 
-**This is not just a chatbot. It is a blueprint for building autonomous, collaborative AI systems.**
+**This is not just a chatbot. It is an architectural blueprint for building stateful, collaborative agentic systems.**
+
+> **Why Agora?**
+> In ancient Greece, the **Agora** was the central public square—a hub of assembly, dialogue, and commerce where specialized craftsmen and thinkers came together to solve problems. This framework provides a digital Agora: a central orchestration hub where specialized AI agents assemble to collaborate, reason, and execute complex tasks, harnessing their collective intelligence.
 
 ---
 
@@ -17,8 +19,8 @@ For experienced developers who want to get running immediately:
 
 ```bash
 # 1. Clone the repository
-git clone <your-repo-url>
-cd adk-copilot
+git clone https://github.com/MohitBhimrajka/project-agora.git
+cd project-agora
 
 # 2. Configure your environment
 cp .env.example .env
@@ -31,82 +33,82 @@ poetry install
 ./setup_environment.sh
 
 # 5. Run the agent
-adk web
+adk web # And select 'project_agora' from the dropdown
 ```
 
-![ADK Copilot Architecture v2](architecture_diagram_v2.png)
-_The architecture: An ADK Orchestrator managing a full development lifecycle with a code review loop._
+![Project Agora Architecture](agora_architecture.png)
+_The architecture: A root agent orchestrating specialized sub-agents via the `AgentTool` class._
 
 ## Who is This Framework For?
 
 This repository is designed for:
 
-- **AI Engineers & Developers** looking to build robust, multi-agent systems that go beyond simple request-response.
-- **Teams wanting to automate complex internal processes** (like developer support, data analysis, or content creation) with a reliable, stateful AI workforce.
-- **Architects seeking a production-ready blueprint** for deploying agentic workflows on Google Cloud.
+- **AI Engineers & Developers** looking to build robust multi-agent systems that go beyond simple request-response patterns.
+- **Solutions Architects** seeking a production-ready architectural pattern for deploying agentic workflows on Google Cloud.
+- **Teams wanting to automate complex internal processes** (like developer support, data analysis, or content creation) with reliable, stateful agents.
 
-## The ADK Copilot: An Example in Action
+## Project Agora: An Example Workflow
 
-The best way to understand the framework is to see it work. The pre-configured ADK Copilot is designed to automate the complex process of developer support with an entire AI team.
+The best way to understand the framework is to observe its agentic workflow. Project Agora is pre-configured to automate the complex process of developer support through a structured, multi-agent system.
 
-### Meet the AI Team
-The orchestrator manages a team of six highly specialized agents:
+### The Agent Hierarchy
+The root `orchestrator_agent` manages a set of six specialized sub-agents, each exposed to the orchestrator as an `AgentTool`:
 
-*   **`ticket_analysis_agent` (The Analyst):** Performs triage on user requests, with the ability to read linked files from GCS for deeper context.
-*   **`knowledge_retrieval_agent` (The Librarian):** Searches the official ADK documentation using the **Vertex AI RAG Engine**.
-*   **`db_retrieval_agent` (The Veteran):** Recalls historical solutions from a **BigQuery** database using vector search.
-*   **`code_generator_agent` (The Engineer):** Designs a plan, visualizes it, and generates multi-file ADK agent code.
-*   **`code_reviewer_agent` (The QA Lead):** Automatically reviews generated code for quality and correctness.
-*   **`problem_solver_agent` (The Synthesizer):** Provides step-by-step solutions for non-code-related issues.
+*   **`ticket_analysis_agent` (The Triage Agent):** Performs initial request analysis and classification. It uses a custom `read_user_file` tool to process contextual data from Google Cloud Storage URIs (`gs://...`).
+*   **`knowledge_retrieval_agent` (The RAG Agent):** Executes queries against a knowledge base using the ADK's built-in **`VertexAiRagRetrieval`** tool, grounded on official ADK documentation.
+*   **`db_retrieval_agent` (The Vector Search Agent):** Recalls historical solutions by executing a **`COSINE_DISTANCE`** vector search against a **BigQuery** table of past ticket embeddings.
+*   **`code_generator_agent` (The Code Generation Agent):** Designs a plan with a Mermaid diagram for user approval, then generates complete, multi-file ADK agent code based on a strict style guide.
+*   **`code_reviewer_agent` (The QA Agent):** A dedicated agent that programmatically reviews generated code against a formal style guide to ensure correctness and adherence to best practices.
+*   **`problem_solver_agent` (The Synthesis Agent):** A stateless `LlmAgent` that synthesizes context from all prior steps to formulate step-by-step text solutions for non-code issues.
 
-### Example Interaction
-Here's a walkthrough of the new, end-to-end code generation workflow:
+### Example Inference Chain
+Here's a walkthrough of the end-to-end code generation workflow:
 
 > **User:** Write me an agent that uses an external API to get the current price of Bitcoin.
 
-> **Agent:** Thank you for your request... I've found some relevant information. I am now ready to formulate a plan. Shall I proceed?
+> **Agora:** Thank you for your request... I have retrieved relevant context. I am now ready to formulate an execution plan. Shall I proceed?
 
 > **User:** Yes, please.
 
-> **Agent:** Excellent. Here is the proposed architecture for your `CryptoPriceAgent`. I will create a main agent that uses a custom tool to call the CoinDesk API. This will require the `requests` library. Does this plan look good?
+> **Agora:** Excellent. Here is the proposed architecture for your `CryptoPriceAgent`. I will create a root agent that utilizes a custom tool to call the CoinDesk API. This will require the `requests` library. Does this plan look correct?
 >
 
 > **User:** The plan and diagram look perfect. Go ahead and build it.
 
-> **Agent:** Great. I will now generate the complete code and pass it for a final quality check.
+> **Agora:** Great. I will now invoke the code generation agent and pass the output to the quality assurance agent for review.
 >
-> *Behind the scenes, the Engineer generates the code. The QA Lead then reviews it against the style guide and approves it.*
+> *[Behind the scenes: The `code_generator_agent` is invoked. Its string output is then passed as an argument to the `code_reviewer_agent`.]*
 >
-> **Agent:** The code has been generated and has passed all quality checks. Here is the complete, multi-file agent:
+> **Agora:** The generated code has passed all quality checks. Here is the complete, multi-file agent:
 >
 > `==== FILE: crypto_price_agent/agent.py ====`
 > ... (and so on)
 
-## The Core Idea: A Framework for AI Teams
+## The Core Architectural Pattern
 
-The goal of this project was to move beyond simple "copilots" and build a system that mimics a real, high-functioning software development team. This framework uses the **Google Agent Development Kit** to create a central `orchestrator_agent` that manages a stateful workflow across a team of swappable, specialist sub-agents.
+This framework implements a **hierarchical agent topology**. It uses the Google ADK to create a central `orchestrator_agent` that directs a stateful workflow across a set of swappable, specialized sub-agents. Each sub-agent is wrapped in an **`AgentTool`**, allowing the orchestrator to invoke them just like any other tool.
 
-The heavy lifting—the interactive state machine, the parallel data retrieval, the dynamic diagram generation, the automated quality assurance, and the cloud infrastructure setup—is already done.
+The framework handles the complex implementation details: the stateful inference chain, parallel tool execution for data retrieval, dynamic diagram generation via a custom tool, an automated QA review loop, and the declarative cloud infrastructure setup.
 
-## Key Architectural Pillars & Features
+## Key Technical Features
 
-I designed the framework around four core pillars that make it a robust and production-ready system.
+The framework is built on four pillars that ensure robustness and production-readiness.
 
-#### 1. Build Reliable Workflows with a State Machine
-Reliability is everything. The orchestrator is a strict state machine governed by its ADK prompt. It moves tasks through a granular lifecycle (`New` -> `Analyzing` -> `AwaitingConfirmation` -> `Generating` -> `Reviewing`). Crucially, it communicates its progress and **waits for user approval** at key checkpoints, creating a collaborative and controllable workflow.
+#### 1. Prompt-Defined State Machine for Reliability
+The orchestrator's behavior is governed by a strict state machine defined within its instruction prompt. It moves tasks through a granular lifecycle (`New` -> `Analyzing` -> `AwaitingConfirmation`). Critically, the prompt instructs the agent to **wait for explicit user confirmation** at key transition points, creating a controllable and auditable inference chain.
 
-#### 2. Understand Deeper with Multi-Modal Input
-The `ticket_analysis_agent` can understand more than just text. Users can provide a link to a log file or code file in **Google Cloud Storage** (`gs://...`). The agent uses a tool to read the file's content, incorporating it into its analysis for a much deeper understanding of the user's problem.
+#### 2. Contextual Grounding with Multi-Modal Input
+The `ticket_analysis_agent` can ground its analysis on more than just text. By using a custom tool (`read_user_file`), it can ingest the content of log files or code files provided by the user via a **Google Cloud Storage** URI (`gs://...`), enabling a deeper understanding of the problem space.
 
-#### 3. Communicate Visually with Dynamic Diagrams
-A good developer team communicates its plan visually. When asked to generate code, the `code_generator_agent` first outputs a textual plan *and* **Mermaid syntax** for an architecture diagram. A custom tool then uses Playwright to render this syntax into a PNG, which is shown to the user. This "show, don't just tell" approach is a core feature.
+#### 3. Visual Execution Plans with Dynamic Diagrams
+The system communicates its execution plan visually. The `code_generator_agent` first outputs a plan and **Mermaid syntax** for an architecture diagram. A custom tool then renders this into a PNG and returns a public URL. This "show, don't just tell" approach provides transparency into the agent's reasoning process.
 
-#### 4. Guarantee Quality with an Automated Code Reviewer
-Generated code is not trusted blindly. After the `code_generator_agent` writes the code, it is immediately passed to a dedicated `code_reviewer_agent`. This QA agent analyzes the code against a formal **style guide**, checking for correctness, security, and best practices, ensuring a high-quality output every time.
+#### 4. Automated Quality Gates with a Reviewer Agent
+To ensure output quality, generated code is not trusted implicitly. After the `code_generator_agent` writes the code, it is immediately passed to the dedicated `code_reviewer_agent`. This QA agent programmatically analyzes the code against a formal **style guide**, ensuring correctness and adherence to best practices before the result is presented to the user.
 
 ## Getting Started (Detailed Steps)
 
-Follow these steps to set up and run the ADK Copilot on your local machine.
+Follow these steps to set up and run Project Agora on your local machine.
 
 ### Step 1: Prerequisites
 
@@ -118,8 +120,8 @@ Follow these steps to set up and run the ADK Copilot on your local machine.
 
 **Clone the Repository:**
 ```bash
-git clone <your-repo-url>
-cd adk-copilot
+git clone https://github.com/MohitBhimrajka/project-agora.git
+cd project-agora
 ```
 
 **Create an Environment File:** Copy the example `.env` file.
@@ -151,14 +153,14 @@ Start the local web interface provided by the ADK CLI.
 adk web
 ```
 
-Once the server starts, open the URL in your browser and select `adk_copilot` from the agent dropdown list.
+Once the server starts, open the URL in your browser and select `project_agora` from the agent dropdown list.
 
 ## Customizing the Framework
-This project's greatest strength is its adaptability. To create your own specialized assistant:
+This project's adaptability is its greatest strength. To create your own specialized agentic workflow:
 
-1.  **Provide New Knowledge:** Replace the files in `data/knowledge_base` and update the data generation script in `scripts/create_mock_db.py`.
-2.  **Define New Specialists:** Edit the prompts in `adk_copilot/sub_agents/` to change agent expertise and behavior.
-3.  **Run the Setup Script:** Execute `./setup_environment.sh` to build a new cloud backend for your custom agent.
+1.  **Provide a New Knowledge Base:** Replace the files in `data/knowledge_base` and update the mock data generation in `scripts/create_mock_db.py`.
+2.  **Define New Sub-Agents:** Edit the prompts and tools in `project_agora/sub_agents/` to change agent capabilities and behavior.
+3.  **Run the Setup Script:** Execute `./setup_environment.sh` to provision a new cloud backend for your custom system.
 
 ## Testing and Deployment
 
@@ -167,17 +169,17 @@ This project's greatest strength is its adaptability. To create your own special
 
 ## Repository Structure
 
-The repository is organized to separate core logic from data, scripts, and deployment configurations.
+The repository is organized to separate core agent logic from data, scripts, and deployment configurations.
 
 ```
-mohitbhimrajka-adk-copilot/
+project-agora/
 ├── .github/                 # GitHub templates for issues and PRs.
-├── adk_copilot/             # Core application source code.
-│   ├── agent.py             # Main orchestrator agent.
-│   ├── prompts.py           # Centralized prompts for all agents.
-│   ├── entities/            # Pydantic data models (SupportTicket).
-│   ├── sub_agents/          # Specialist agents (Analyst, Engineer, etc.).
-│   └── tools/               # Custom tools (BigQuery search, diagram gen, etc.).
+├── project_agora/           # Core application source code.
+│   ├── agent.py             # The root orchestrator agent.
+│   ├── prompts.py           # Instruction prompts for all agents.
+│   ├── entities/            # Pydantic data models for state management.
+│   ├── sub_agents/          # Specialized sub-agents, each wrapped in an AgentTool.
+│   └── tools/               # Custom tools for data access and rendering.
 ├── deployment/              # Scripts for Cloud Run & Agent Engine deployment.
 ├── eval/                    # Evaluation suite for testing agent performance.
 │   └── data/                # Test cases for evaluation.
@@ -195,19 +197,19 @@ mohitbhimrajka-adk-copilot/
 This framework is a living project with exciting enhancements planned for the future. We welcome community input and contributions!
 
 ### Long-term Aspirations
-- [ ] **GitHub Integration Hub**: Comprehensive GitHub integration for automated code reviews, issue management, and CI/CD pipeline orchestration
-- [ ] **Federated Agent Networks**: Support for distributed agent teams across multiple organizations or cloud environments
-- [ ] **Industry-Specific Templates**: Pre-configured agent teams for specific domains (healthcare, finance, legal, etc.)
+- [ ] **GitHub Tool Integration**: Comprehensive GitHub integration for automated code reviews, issue management, and CI/CD pipeline orchestration.
+- [ ] **Federated Agent Topologies**: Support for distributed agent systems across multiple cloud environments.
+- [ ] **Industry-Specific Implementations**: Pre-configured agent hierarchies for specific domains (healthcare, finance, legal, etc.).
 
 ### Community Contributions Welcome
 We're particularly interested in contributions that:
-- Add new specialized agents for different domains
-- Improve the reliability and robustness of existing tools
-- Enhance the developer experience with better debugging and monitoring
-- Expand integration capabilities with popular enterprise tools
+- Add new specialized sub-agents for different domains.
+- Improve the reliability and robustness of existing custom tools.
+- Enhance the developer experience with better debugging and monitoring.
+- Expand integration capabilities with popular enterprise tools.
 
 See our [Contributing Guide](CONTRIBUTING.md) for details on how to get involved!
 
 ## Disclaimer
 
-This project was developed for the Google ADK Hackathon. It is provided for illustrative purposes and is not intended for production use without further testing and hardening.
+This project was developed for the Google ADK Hackathon. It is provided as a reference implementation and is not intended for production use without further testing and hardening.

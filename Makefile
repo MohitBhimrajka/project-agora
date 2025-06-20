@@ -1,7 +1,7 @@
 .PHONY: help install setup run test deploy-cr deploy-ae clean
 
 help:
-	@echo "ADK Copilot - Makefile Commands:"
+	@echo "Project Agora - Makefile Commands:"
 	@echo ""
 	@echo "  install      : Install dependencies using Poetry."
 	@echo "  setup        : Run the full environment setup script."
@@ -20,7 +20,7 @@ install:
 	npx playwright install --with-deps
 
 setup:
-	@echo "🚀 Setting up ADK Copilot environment..."
+	@echo "🚀 Setting up Project Agora environment..."
 	@./setup_environment.sh
 
 run:

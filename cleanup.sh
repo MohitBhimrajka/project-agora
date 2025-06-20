@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🧹 ADK Copilot Cleanup Script"
+echo "🧹 Project Agora Cleanup Script"
 echo "=============================="
 echo ""
 
@@ -64,7 +64,7 @@ fi
 # 4. Check for and delete any Cloud Run services (optional)
 echo ""
 echo "4️⃣  Checking for Cloud Run services..."
-CLOUD_RUN_SERVICES=$(gcloud run services list --filter="metadata.name:adk-copilot" --format="value(metadata.name)" --region=us-central1 2>/dev/null || echo "")
+CLOUD_RUN_SERVICES=$(gcloud run services list --filter="metadata.name:project-agora" --format="value(metadata.name)" --region=us-central1 2>/dev/null || echo "")
 
 if [ ! -z "$CLOUD_RUN_SERVICES" ]; then
     echo "   Found Cloud Run services to delete:"

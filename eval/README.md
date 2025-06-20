@@ -1,6 +1,6 @@
 # Evaluation Directory
 
-This directory contains the testing and evaluation suite for the ADK Copilot. A robust evaluation process is critical for ensuring the agent behaves as expected, preventing regressions, and measuring the quality of its responses.
+This directory contains the testing and evaluation suite for Project Agora. A robust evaluation process is critical for ensuring the agent behaves as expected, preventing regressions, and measuring the quality of its responses.
 
 ### Purpose of Evaluation
 

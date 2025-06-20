@@ -8,15 +8,15 @@ from google.api_core.exceptions import NotFound
 from vertexai import agent_engines
 from vertexai.preview.reasoning_engines import AdkApp
 
-from adk_copilot.agent import root_agent
+from project_agora.agent import root_agent
 
 
 def main():
-    """Deploys or deletes the ADK Copilot agent on Vertex AI Agent Engine."""
+    """Deploys or deletes the Project Agora agent on Vertex AI Agent Engine."""
     load_dotenv()
 
     parser = argparse.ArgumentParser(
-        description="Deploy or delete the ADK Copilot agent."
+        description="Deploy or delete the Project Agora agent."
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -116,8 +116,8 @@ def main():
         )
         remote_agent = agent_engines.create(
             app,
-            display_name="ADK-Copilot",
-            description="ADK Copilot Agent deployed for developers.",
+            display_name="Project-Agora",
+            description="Project Agora: A multi-agent framework for developer automation.",
             requirements=[
                 agent_whl_path,
                 # These packages are required by the ADK Agent Engine environment

@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "adk-copilot"
+name = "project-agora"
 version = "0.1.0"
-description = "An AI copilot and expert assistant for developers using the Google Agent Development Kit (ADK)."
+description = "A framework for building and orchestrating autonomous multi-agent AI teams on Google Cloud using the Agent Development Kit (ADK)."
 authors = ["Mohit Bhimrajka <mohitbhimrajka5@gmail.com>"]
 license = "Apache-2.0"
 readme = "README.md"

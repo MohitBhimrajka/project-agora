@@ -1,6 +1,6 @@
-# Contributing to ADK Copilot
+# Contributing to Project Agora
 
-Thank you for your interest in contributing to ADK Copilot! This guide will help you get started with contributing to this Agent Development Kit framework.
+Thank you for your interest in contributing to Project Agora! This guide will help you get started with contributing to this Agent Development Kit framework.
 
 ## 🚀 Getting Started
 
@@ -15,8 +15,8 @@ Thank you for your interest in contributing to ADK Copilot! This guide will help
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/yourusername/adk-copilot.git
-   cd adk-copilot
+   git clone https://github.com/yourusername/project-agora.git
+cd project-agora
    ```
 
 2. **Install Dependencies**
@@ -132,7 +132,7 @@ When adding new components:
 
 **For new agents:**
 ```
-adk_copilot/sub_agents/your_agent/
+project_agora/sub_agents/your_agent/
 ├── __init__.py
 ├── agent.py          # Main agent definition
 └── README.md         # What this agent does
@@ -140,7 +140,7 @@ adk_copilot/sub_agents/your_agent/
 
 **For new tools:**
 ```
-adk_copilot/tools/
+project_agora/tools/
 ├── _your_tools.py     # Your new tools
 └── tools.py           # Add imports here
 ```
