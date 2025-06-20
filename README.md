@@ -2,8 +2,6 @@
 
 > #### A hierarchical multi-agent framework built with the Google Agent Development Kit, pre-configured to automate complex ADK development workflows.
 
-An implementation for orchestrating hierarchical multi-agent systems on Google Cloud using the Agent Development Kit (ADK).
-
 ![Project Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)
 ![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/MohitBhimrajka/project-agora)
