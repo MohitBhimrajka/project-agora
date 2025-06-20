@@ -30,7 +30,7 @@ cd project-agora
 
 # 2. Configure your environment
 cp .env.example .env
-# --> EDIT .env and set your GCP_PROJECT_ID and a unique BUCKET_NAME <--
+# --> EDIT .env and set all required environment variables (see Step-by-Step Setup below) <--
 
 # 3. Install dependencies
 poetry install
@@ -123,9 +123,28 @@ cp .env.example .env
 ```
 
 **2. Edit `.env`** and set your required values:
+
+```bash
+# Required for Vertex AI
+GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+
+# Required for RAG and Deployment Staging
+GOOGLE_CLOUD_STORAGE_BUCKET=your-unique-bucket-name
+RAG_CORPUS_NAME="" # Auto-populated by the setup_environment.sh script
+
+# Required for BigQuery integration
+BQ_PROJECT_ID=your-gcp-project-id
+BQ_DATASET_ID=your-bigquery-dataset
+```
+
+**Environment Variable Descriptions:**
 - `GOOGLE_CLOUD_PROJECT`: Your Google Cloud Project ID
+- `GOOGLE_CLOUD_LOCATION`: The GCP region for Vertex AI services (default: us-central1)
 - `GOOGLE_CLOUD_STORAGE_BUCKET`: A globally unique name for a new GCS bucket
-- `BQ_PROJECT_ID`: Set this to your Google Cloud Project ID
+- `RAG_CORPUS_NAME`: Auto-populated by setup script - leave empty initially
+- `BQ_PROJECT_ID`: Your Google Cloud Project ID (typically same as GOOGLE_CLOUD_PROJECT)
+- `BQ_DATASET_ID`: Name for your BigQuery dataset
 
 **3. Install and Provision:**
 ```bash
