@@ -6,7 +6,6 @@ from pathlib import Path
 
 import vertexai
 from dotenv import find_dotenv, set_key
-from google.api_core.exceptions import GoogleAPICallError
 from google.cloud import storage
 from vertexai.preview import rag
 
