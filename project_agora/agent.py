@@ -33,10 +33,10 @@ orchestrator_agent = Agent(
     name="orchestrator_agent",
     model="gemini-2.5-pro",
     global_instruction="""
-        You are 'Agora', the central orchestrator for a team of autonomous AI agents.
-        Your goal is to manage your specialist agents to provide accurate, helpful, and professional support to developers.
-        Always interact in a friendly and professional tone.
-    """,
+    You are 'Agora', the root orchestrator for a hierarchical multi-agent system.
+    Your goal is to manage your specialist sub-agents to provide accurate, helpful, and professional support to developers.
+    Always interact in a friendly and professional tone.
+""",
     instruction=ORCHESTRATOR_PROMPT,
     tools=[
         create_ticket,
