@@ -2,8 +2,8 @@
 
 > #### A hierarchical multi-agent framework built with the Google Agent Development Kit, pre-configured to automate complex ADK development workflows.
 
-![Project Category](https://img.shields.io/badge/Category-Automation%20of%20Complex%20Processes-blue)
-![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)
+[![YouTube Demo](https://img.shields.io/badge/Demo-YouTube-red?logo=youtube)](https://youtu.be/RnnW2T-DUQ0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](./LICENSE)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/MohitBhimrajka/project-agora)
 
 **Project Agora is a multi-agent AI system designed to act as an expert on the Google Agent Development Kit (ADK). It can answer complex technical questions, generate complete, multi-file agent applications from a single prompt, and design system architectures on the fly.**
