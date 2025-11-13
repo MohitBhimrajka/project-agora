@@ -58,6 +58,10 @@ if [ ${#missing_vars[@]} -ne 0 ]; then
 fi
 
 # Set default values for optional variables
+DEFAULT_SERVICE_NAME="project-agora"
+DEFAULT_APP_NAME="project-agora"
+DEFAULT_AGENT_PATH="project_agora"
+
 SERVICE_NAME=${SERVICE_NAME:-"$DEFAULT_SERVICE_NAME"}
 APP_NAME=${APP_NAME:-"$DEFAULT_APP_NAME"}
 AGENT_PATH=${AGENT_PATH:-"$DEFAULT_AGENT_PATH"}
@@ -113,7 +117,12 @@ echo "$DEPLOY_CMD"
 echo ""
 
 # Execute the deployment
-if eval $DEPLOY_CMD; then
+set +e  # Don't exit on error for this command
+eval $DEPLOY_CMD
+DEPLOY_EXIT_CODE=$?
+set -e  # Re-enable exit on error
+
+if [ $DEPLOY_EXIT_CODE -eq 0 ]; then
     echo ""
     echo -e "${GREEN}🎉 Deployment completed successfully!${NC}"
     echo ""
@@ -138,5 +147,5 @@ else
     echo "  3. Ensure the ADK agent path is correct"
     echo "  4. Check the ADK documentation for any recent changes"
     echo ""
-    exit 1
+    exit $DEPLOY_EXIT_CODE
 fi 
