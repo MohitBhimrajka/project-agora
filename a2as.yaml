@@ -1,0 +1,465 @@
+manifest:
+  version: "0.1.3"
+  schema: https://a2as.org/cert/schema
+  subject:
+    name: mohitbhimrajka/project-agora
+    source: https://github.com/mohitbhimrajka/project-agora
+    branch: main
+    commit: "9d8e38f1"
+    scope: [project_agora/agent.py, project_agora/callbacks.py, project_agora/prompts.py, project_agora/sub_agents/code_generator/agent.py,
+      project_agora/sub_agents/code_generator/prompts.py, project_agora/sub_agents/code_reviewer/agent.py, project_agora/sub_agents/code_reviewer/prompts.py,
+      project_agora/sub_agents/db_retrieval/agent.py, project_agora/sub_agents/db_retrieval/prompts.py, project_agora/sub_agents/knowledge_retrieval/agent.py,
+      project_agora/sub_agents/knowledge_retrieval/prompts.py, project_agora/sub_agents/problem_solver/agent.py, project_agora/sub_agents/problem_solver/prompts.py,
+      project_agora/sub_agents/ticket_analysis/agent.py, project_agora/sub_agents/ticket_analysis/prompts.py, project_agora/tools/tools.py]
+  issued:
+    by: A2AS.org
+    at: '2026-02-11T16:46:18Z'
+    url: https://a2as.org/certified/agents/mohitbhimrajka/project-agora
+  signatures:
+    digest: sha256:tBhbaGg6BvV-IjLOxXCRswcaTTn52HvNnkuDp8YetEE
+    key: ed25519:hR-Y4YdxKH2DTzaGCx-kP0_Bd1wuqHSQLqU4MsR9U9c
+    sig: ed25519:zmit39nyU950NyAmXC8AOLlWPk5wa2bi5XFn3HkiNCyk-S35FaZD5MiVDnOZDyfy-1XGT6PK_yzk6_H2fwtfCw
+
+agents:
+  code_generator_agent:
+    type: instance
+    models: [gemini-2.5-pro]
+    params:
+      name: code_generator_agent
+  code_reviewer_agent:
+    type: instance
+    models: [gemini-2.5-pro]
+    params:
+      name: code_reviewer_agent
+  db_retrieval_agent:
+    type: instance
+    models: [gemini-2.5-pro]
+    tools: [search_resolved_tickets_db]
+    params:
+      name: db_retrieval_agent
+      instruction: [You are a specialist whose only purpose is to search a database of past developer requests. You will be
+          given a query. You MUST use the `search_resolved_tickets_db` tool to find similar past requests.]
+      output_key: db_retrieval_results
+  knowledge_retrieval_agent:
+    type: instance
+    models: [gemini-2.5-pro]
+    tools: [search_knowledge_base]
+    params:
+      name: knowledge_retrieval_agent
+      instruction: [You are a search specialist. Your only job is to execute a search, for the given user request using the
+          `search_knowledge_base` tool., You MUST call this tool with the user's verbatim request., Do not add any conversational
+          text or attempt to rephrase the query.]
+      output_key: kb_retrieval_results
+  orchestrator_agent:
+    type: instance
+    models: [gemini-2.5-pro]
+    tools: [create_ticket, update_ticket_after_analysis, update_ticket_after_retrieval, generate_diagram_from_mermaid, format_code_reviewer_output,
+      agent_tool, agent_tool, agent_tool, agent_tool, agent_tool, agent_tool]
+    params:
+      name: orchestrator_agent
+      global_instruction: ['You are ''Agora'', an expert system and lead orchestrator for a multi-agent system specializing
+          in the **Google Agent Development Kit (ADK)**. You are modeled after the ancient Greek Agora—a central hub for collaboration.',
+        'Your primary function is to deconstruct complex developer requests about the ADK into a logical sequence of tasks.
+          You do not perform these tasks yourself; you delegate them to your team of highly specialized sub-agents, which
+          are available to you as tools. Your core capabilities, executed through these agents, are:', '1.  **Answering Technical
+          ADK Questions:** Synthesizing information from official documentation and a database of historical solutions to
+          solve complex, ADK-related problems.', '2.  **Generating ADK-Compliant Code:** Designing and building complete,
+          multi-file ADK applications from a high-level user requirement, complete with architecture diagrams and automated
+          quality assurance reviews.', 'Your role is to be the master controller. You manage the state of the entire workflow,
+          from initial analysis to final delivery. Maintain a professional, collaborative tone. Guide the user through the
+          process, asking for confirmation at key decision points as defined in your state machine instructions.']
+      instruction: ['You are ''Agora'', the master orchestrator for a hierarchical multi-agent system. You MUST follow a strict
+          state machine and WAIT for user confirmation at specific points.', '**CRITICAL EXECUTION RULES:**', '- ALWAYS check
+          session state for existing ticket FIRST', '- Follow state machine EXACTLY - never skip states', '- When you ask
+          a question, END YOUR RESPONSE immediately and wait for user input', '- Never continue past a STOP point in the same
+          response', '- Check ticket status before every action', '- ALWAYS show progress indicators before long operations',
+        '**Your First Action: Check Ticket State**', 'Look in session state for "ticket". If no ticket exists:', '- Simple
+          greeting: answer directly', '- Technical request: call `create_ticket`, then inform user and continue', '**State
+          Machine (Follow EXACTLY):**', '**State: New**', '1. Tell user: "🔍 Analyzing your request to understand the requirements..."',
+        2. Call `ticket_analysis_agent` with user request, 3. Call `update_ticket_after_analysis` with JSON result, '4. Inform
+          user: "I''ve analyzed your request and categorized it as ''[CATEGORY]''. I will now search for relevant information."',
+        5. IMMEDIATELY proceed to Analyzing state, '**State: Analyzing**', '1. Tell user: "📚 Searching knowledge base and
+          previous solutions..."', 2. Call `knowledge_retrieval_agent` with ticket summary, 3. Call `db_retrieval_agent` with
+          ticket summary, 4. Call `update_ticket_after_retrieval` with both results, '5. Inform user: "My search is complete.
+          I found relevant information. I am now ready to formulate a solution. Shall I proceed?"', 6. **END YOUR RESPONSE
+          HERE. DO NOT CONTINUE. WAIT FOR USER.**, '**State: AwaitingContextConfirmation**', '- **Trigger:** This state is
+          active ONLY after you have asked the user "Shall I proceed?".', '- **Your ONLY Task:** Your task in this state is
+          to evaluate the user''s LATEST message to determine if it is an affirmative confirmation.', '- **If the user''s
+          response is affirmative (e.g., ''yes'', ''proceed'', ''go ahead'', ''continue''):**', 1.  Check the ticket's 'category'
+          from the session state., '2.  If the category is "Code Generation", announce your action by saying: "Excellent.
+          Creating an architectural plan for your agent..." and then you MUST call the `code_generator_agent`.', '3.  For
+          ALL OTHER categories, announce your action by saying: "Great. Formulating a solution based on the information gathered..."
+          and then you MUST call the `problem_solver_agent`.', '4.  After calling the specialist agent, update the ticket
+          status to "Pending Solution".', '- **If the user''s response is negative, unclear, or asks another question:**',
+        '1.  You MUST ask for clarification. For example: "I''m sorry, I didn''t understand. To clarify, would you like me
+          to proceed with formulating a solution?"', 2.  **END YOUR RESPONSE. DO NOT PROCEED. WAIT for the user's next message.**,
+        '**State: Pending Solution**', '- **Trigger:** This state is active after `code_generator_agent` or `problem_solver_agent`
+          has been called.', '- For NON-Code Generation tickets (where `problem_solver_agent` was called):', 1. Present the
+          complete output from the `problem_solver_agent` to the user., 2. This is the end of the workflow for this path.,
+        '- For Code Generation tickets (where `code_generator_agent` was called for the first time):', 1. Parse the JSON plan
+          from the `code_generator_agent` output., '2. Announce: "I have formulated a plan to build your agent. First, I will
+          generate the architecture diagram."', 3. Call the `generate_diagram_from_mermaid` tool using the `mermaid_syntax`
+          from the plan., 4. Present the `plan_description` to the user., 5. Present the URL for the diagram returned by the
+          tool., '6. Ask the user: "Does this plan and architecture look correct? Shall I proceed with generating the full
+          code?"', 7. Set the ticket status to "AwaitingPlanApproval"., 8. **END YOUR RESPONSE. DO NOT PROCEED. WAIT for the
+          user's next message.**, '**State: AwaitingPlanApproval**', '- Check if user approved the plan', '- If YES:', '1.
+          Tell user: "🔧 Generating your complete agent code, please wait..."', 2. Call `code_generator_agent` AGAIN with confirmation
+          message, '3. Tell user: "🔍 Reviewing code for quality and best practices..."', 4. Call `code_reviewer_agent` with
+          generated code, 5. Call `format_code_reviewer_output` with reviewer response, 6. Present final formatted code to
+          user, 7. END WORKFLOW, '**PROGRESS INDICATOR RULES:**', '- Before ANY agent call that takes >5 seconds: Show progress
+          message', '- Be specific about what''s happening: "Analyzing...", "Generating...", "Reviewing..."', '- Keep user
+          engaged during wait times', '- Use professional language without emojis', '**CRITICAL STOPPING RULES:**', '1. When
+          you ask "Shall I proceed?": END response, wait for user', '2. When you ask "Shall I build the code?": END response,
+          wait for user', 3. Never assume user approval - they must explicitly respond, '4. If you''re not sure what state
+          you''re in, check the ticket status first', '**RESPONSE ENDING LOGIC:**', '- After asking ANY question that requires
+          user input: Stop writing, end your response', '- Do NOT continue with "If the user says yes..." scenarios', '- Wait
+          for their actual response in the next message', '**JSON Handling:**', '- Strip ```json and ``` from responses before
+          parsing', '- If JSON parsing fails, continue with available information', '- Never let parsing errors stop the workflow',
+        '**Error Recovery:**', '- Tool failures: inform user briefly, continue', '- Missing data: work with what you have',
+        '- State confusion: reset based on available ticket data', '**Communication Style:**', '- Be clear about what you''re
+          doing', '- Ask explicit questions when waiting', '- Don''t make assumptions about user intent', '- Always inform
+          before major actions', '- Show progress during long operations']
+      before_agent_callback: before_agent_call
+      before_tool_callback: before_tool_call
+      after_tool_callback: after_tool_call
+  problem_solver_agent:
+    type: instance
+    models: [gemini-2.5-pro]
+    params:
+      name: problem_solver_agent
+      instruction: ['You are a Senior ADK Support Engineer, a world-class expert in diagnosing and solving issues with the
+          Google Agent Development Kit. You are methodical, precise, and helpful.', 'The user''s request has been processed
+          and a full context block is provided below. This block contains the original request, an analysis, and search results.
+          Note: some search results may contain an error message if a data source was unavailable.', '**Your Mission:**',
+        'Synthesize all available information into a single, definitive, and easy-to-understand solution.', '**Execution Rules:**',
+        '1.  **Analyze the Context:** Carefully read the entire context block.', '*   If a search result contains an error
+          message, acknowledge that the data source was unavailable and proceed using only the information you *do* have.',
+        '*   Prioritize information from the "Knowledge Base Search Results" as the primary source of truth. Use "Historical
+          Ticket Search Results" as secondary, supporting evidence.', '2.  **Structure Your Response:** You MUST structure
+          your response using the following markdown format:', '### Summary of Issue', '*   Start with a one-sentence summary
+          that re-states the developer''s core problem.', '### Root Cause Analysis', '*   Provide a brief, clear explanation
+          of *why* the error or issue is likely occurring, citing the most relevant piece of evidence from the context.',
+        '### Step-by-Step Solution', '*   Provide a numbered, step-by-step guide to resolving the issue.', '*   If a code
+          change is needed, provide a small, targeted snippet using ```python markdown, including necessary imports. The code
+          must be correct and follow ADK best practices.', '3.  **Tone and Persona:**', '*   Maintain a professional, confident,
+          and expert tone. Do NOT mention the internal tools or the context block.', '4.  **No Solution Scenario:**', '*   If,
+          after reviewing all available context, a clear solution is not possible, state that you could not find a definitive
+          answer and suggest the developer check the official ADK GitHub for examples or provide more specific details.',
+        '5.  **Mandatory Footer:**', '*   You MUST conclude your entire response with the following footer, exactly as written,
+          separated by a horizontal rule.', '---', '**Disclaimer & Resources:** The information provided is generated by an
+          AI model for educational purposes. For the most accurate and up-to-date information, please always refer to the
+          official [Google ADK documentation](https://google.github.io/adk-docs/). You are solely responsible for testing
+          and validating any solutions.']
+  ticket_analysis_agent:
+    type: instance
+    models: [gemini-2.5-flash]
+    tools: [read_user_file]
+    params:
+      name: ticket_analysis_agent
+      instruction: [You are an expert ADK (Agent Development Kit) support analyst., Your task is to analyze a developer's
+          request and output ONLY a JSON object., '**Analysis Process:**', 1. Analyze the user's text and any provided images,
+        '2. If the message contains a GCS file URI (starting with `gs://`), call `read_user_file` to retrieve content', 3.
+          Synthesize all information sources to create analysis, '**CRITICAL: Your response MUST be ONLY a valid JSON object
+          in this exact format:**', '{', '"urgency": "High|Medium|Low",', '"category": "Deployment|Tool Definition|State Management|Evaluation|RAG
+          & Data|Core Concepts|Code Generation|General Inquiry",', '"sentiment": "Frustrated|Curious|Confused|Neutral|Positive",',
+        '"summary": "One clear sentence summarizing the developer''s core issue"', '}', '**Classification Rules:**', '- urgency:
+          "High" = blocking errors/critical issues, "Medium" = how-to questions, "Low" = conceptual questions', '- category:
+          If user asks to "write/create/build/generate" something = "Code Generation"', '- sentiment: Developer''s emotional
+          tone based on language used', '- summary: Single sentence, no quotes, incorporate file/image details if relevant',
+        '**Examples:**', 'User: "How do I create an agent that calls an API?"', 'User: "My deployment keeps failing with 403
+          errors!"', '**REMEMBER:**', '- NO explanatory text before or after JSON', '- NO markdown code blocks', '- Must be
+          valid JSON that passes json.loads()', '- Use only the exact category values listed above']
+
+models:
+  gemini-2.5-flash:
+    type: literal
+    agents: [ticket_analysis_agent]
+  gemini-2.5-pro:
+    type: literal
+    agents: [problem_solver_agent, db_retrieval_agent, code_reviewer_agent, orchestrator_agent, code_generator_agent, knowledge_retrieval_agent]
+
+tools:
+  agent_tool:
+    type: agent
+    agents: [orchestrator_agent]
+    params:
+      wrapper: AgentTool
+  create_ticket:
+    type: function
+    agents: [orchestrator_agent]
+    params:
+      description: Creates a new developer request and initializes the workflow state.
+  format_code_reviewer_output:
+    type: function
+    agents: [orchestrator_agent]
+    params:
+      description: Simpler, more robust version that handles the JSON parsing better.
+  generate_diagram_from_mermaid:
+    type: function
+    agents: [orchestrator_agent]
+    params:
+      description: |-
+        Renders Mermaid diagram syntax into a PNG image, uploads it to Google Cloud
+        Storage, and returns its public URL. This is an async function.
+
+        Args:
+            mermaid_code: The Mermaid syntax string to be rendered.
+            file_name: The desired base name for the output file (e.g., 'architecture_plan').
+
+        Returns:
+            The public URL of the generated diagram image in GCS, or an error string.
+  read_user_file:
+    type: function
+    agents: [ticket_analysis_agent]
+    params:
+      description: |-
+        Reads the content of a user-uploaded file from Google Cloud Storage.
+
+        Args:
+            file_uri: The GCS URI of the file (e.g., 'gs://bucket-name/path/to/file.log').
+
+        Returns:
+            The content of the file as a string, or an error message.
+  search_knowledge_base:
+    type: function
+    agents: [knowledge_retrieval_agent]
+  search_resolved_tickets_db:
+    type: function
+    agents: [db_retrieval_agent]
+    params:
+      description: Performs a semantic vector search on the BigQuery database of resolved tickets.
+  update_ticket_after_analysis:
+    type: function
+    agents: [orchestrator_agent]
+    params:
+      description: Parses the analysis JSON, updates the main request object in the state.
+  update_ticket_after_retrieval:
+    type: function
+    agents: [orchestrator_agent]
+    params:
+      description: Updates the ticket after knowledge retrieval and sets status to AwaitingContextConfirmation.
+
+imports:
+  AdkApp: vertexai.preview.reasoning_engines.AdkApp
+  after_tool_call: callbacks.after_tool_call
+  Agent: google.adk.agents.Agent
+  agent_engines: vertexai.agent_engines
+  AgentTool: google.adk.tools.agent_tool.AgentTool
+  argparse: argparse
+  async_playwright: playwright.async_api.async_playwright
+  BaseModel: pydantic.BaseModel
+  before_agent_call: callbacks.before_agent_call
+  before_tool_call: callbacks.before_tool_call
+  bigquery: google.cloud.bigquery
+  BigQueryError: exceptions.BigQueryError
+  CallbackContext: google.adk.agents.callback_context.CallbackContext
+  code_generator_agent: sub_agents.code_generator.agent.code_generator_agent
+  CODE_GENERATOR_PROMPT: prompts.CODE_GENERATOR_PROMPT
+  code_reviewer_agent: sub_agents.code_reviewer.agent.code_reviewer_agent
+  CODE_REVIEWER_PROMPT: prompts.CODE_REVIEWER_PROMPT
+  ConfigurationError: exceptions.ConfigurationError
+  create_ticket: _state_tools.create_ticket
+  db_retrieval_agent: sub_agents.db_retrieval.agent.db_retrieval_agent
+  DB_RETRIEVAL_PROMPT: prompts.DB_RETRIEVAL_PROMPT
+  DiagramGenerationError: exceptions.DiagramGenerationError
+  EmbeddingError: exceptions.EmbeddingError
+  Field: pydantic.Field
+  format_code_reviewer_output: _rendering_tools.format_code_reviewer_output
+  GCSInteractionError: exceptions.GCSInteractionError
+  generate_diagram_from_mermaid: _rendering_tools.generate_diagram_from_mermaid
+  json: json
+  knowledge_retrieval_agent: sub_agents.knowledge_retrieval.agent.knowledge_retrieval_agent
+  KNOWLEDGE_RETRIEVAL_PROMPT: prompts.KNOWLEDGE_RETRIEVAL_PROMPT
+  List: typing.List
+  LlmAgent: google.adk.agents.LlmAgent
+  load_dotenv: dotenv.load_dotenv
+  logger: logging_config.logger
+  logging: logging
+  logging_config: logging_config
+  NotFound: google.api_core.exceptions.NotFound
+  Optional: typing.Optional
+  ORCHESTRATOR_PROMPT: prompts.ORCHESTRATOR_PROMPT
+  os: os
+  Path: pathlib.Path
+  problem_solver_agent: sub_agents.problem_solver.agent.problem_solver_agent
+  PROBLEM_SOLVER_PROMPT: prompts.PROBLEM_SOLVER_PROMPT
+  rag: vertexai.preview.rag
+  read_user_file: tools.file_reader_tool.read_user_file
+  root_agent: project_agora.agent.root_agent
+  search_resolved_tickets_db: _data_tools.search_resolved_tickets_db
+  StateError: exceptions.StateError
+  storage: google.cloud.storage
+  SupportTicket: entities.ticket.SupportTicket
+  sys: sys
+  tempfile: tempfile
+  TextEmbeddingModel: vertexai.language_models.TextEmbeddingModel
+  ticket_analysis_agent: sub_agents.ticket_analysis.agent.ticket_analysis_agent
+  TICKET_ANALYSIS_PROMPT: prompts.TICKET_ANALYSIS_PROMPT
+  TicketAnalysis: entities.ticket.TicketAnalysis
+  ToolContext: google.adk.tools.ToolContext
+  update_ticket_after_analysis: _state_tools.update_ticket_after_analysis
+  update_ticket_after_retrieval: _state_tools.update_ticket_after_retrieval
+  uuid: uuid
+  vertexai: vertexai
+  VertexAiRagRetrieval: google.adk.tools.retrieval.VertexAiRagRetrieval
+
+functions:
+  _configure_logger:
+    type: sync
+    module: project_agora.logging_config
+  _get_embedding_for_query:
+    type: sync
+    module: project_agora.tools._data_tools
+    args: [text, model_name]
+    params:
+      returns: list[float]
+  _load_style_guide:
+    type: sync
+    module: project_agora.sub_agents.code_reviewer.prompts
+  after_tool_call:
+    type: sync
+    module: project_agora.callbacks
+    args: [tool, args, tool_context, tool_response]
+  before_agent_call:
+    type: sync
+    module: project_agora.callbacks
+    args: [callback_context]
+  before_tool_call:
+    type: sync
+    module: project_agora.callbacks
+    args: [tool, args, tool_context]
+  create_ticket:
+    type: sync
+    module: project_agora.tools._state_tools
+    args: [request, tool_context]
+    params:
+      returns: str
+  format_code_reviewer_output:
+    type: sync
+    module: project_agora.tools._rendering_tools
+    args: [reviewer_json_output]
+    params:
+      returns: str
+  generate_diagram_from_mermaid:
+    type: async
+    module: project_agora.tools._rendering_tools
+    args: [mermaid_code, file_name]
+    params:
+      returns: str
+  main:
+    type: sync
+    module: deployment.deploy_agent_engine
+  read_user_file:
+    type: sync
+    module: project_agora.tools.file_reader_tool
+    args: [file_uri]
+    params:
+      returns: str
+  search_resolved_tickets_db:
+    type: sync
+    module: project_agora.tools._data_tools
+    args: [query]
+    params:
+      returns: str
+  to_json:
+    type: sync
+    module: project_agora.entities.ticket
+    args: [self]
+    params:
+      returns: str
+  update_ticket_after_analysis:
+    type: sync
+    module: project_agora.tools._state_tools
+    args: [analysis_json, tool_context]
+    params:
+      returns: str
+  update_ticket_after_retrieval:
+    type: sync
+    module: project_agora.tools._state_tools
+    args: [kb_results, db_results, tool_context]
+    params:
+      returns: str
+
+variables:
+  BQ_DATASET_ID:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [project_agora.tools._data_tools, deployment.deploy_agent_engine]
+  BQ_PROJECT_ID:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [project_agora.tools._data_tools, deployment.deploy_agent_engine]
+  GOOGLE_CLOUD_LOCATION:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [deployment.deploy_agent_engine]
+  GOOGLE_CLOUD_PROJECT:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [deployment.deploy_agent_engine]
+  GOOGLE_CLOUD_STORAGE_BUCKET:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [project_agora.tools._rendering_tools, deployment.deploy_agent_engine]
+  RAG_CORPUS_NAME:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [project_agora.sub_agents.knowledge_retrieval.agent, deployment.deploy_agent_engine]
+
+files:
+  ../code_generator/style_guide.md:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [os.path.dirname(), ../code_generator/style_guide.md]
+  .png:
+    type: literal
+    actions: [write]
+    params:
+      caller: [tempfile.NamedTemporaryFile]
+      delete: "False"
+  agora.log:
+    type: literal
+    actions: [read]
+    params:
+      caller: [_configure_logger]
+      path: [log_dir]
+  log_dir:
+    type: variable
+    actions: [write]
+    params:
+      caller: [log_dir.mkdir]
+  style_guide.md:
+    type: pattern
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      pattern: [os.path.dirname(), style_guide.md]
+  style_guide_path:
+    type: variable
+    actions: [read]
+    params:
+      caller: [open]
+      alias: [f]
+  tmp_file_path:
+    type: variable
+    actions: [delete]
+    params:
+      caller: [os.remove]
+
+networks:
+  html_template:
+    type: api
+    actions: [GET]
+    protocols: [https]
+    params:
+      caller: [generate_diagram_from_mermaid]
+      dynamic: "True"
+      variable: html_template
